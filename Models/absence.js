@@ -1,10 +1,15 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import User from "./user.js";
+import AbsenceNotification from "./absence-notif.js";
 
 export class Absence extends Model {
-  static associate(models) {
-    // Relasi, misalnya:
-    // Absence.belongsTo(models.User, { foreignKey: 'user_id' });
+  static associate() {
+    Absence.belongsTo(User, { foreignKey: "user_id", as: "user" });
+    Absence.hasOne(AbsenceNotification, {
+      foreignKey: "absence_id",
+      as: "notification",
+    });
   }
 }
 

@@ -1,11 +1,14 @@
 // models/Canteen.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import Transaction from "./transaction.js";
 
 class Canteen extends Model {
-  static associate(models) {
-    // define associations here jika diperlukan
-    // Contoh: Canteen.hasMany(models.Transaction, { foreignKey: 'canteen_id' });
+  static associate() {
+    Canteen.hasMany(Transaction, {
+      foreignKey: "canteen_id",
+      as: "transactions",
+    });
   }
 }
 

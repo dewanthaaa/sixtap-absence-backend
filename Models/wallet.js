@@ -1,11 +1,16 @@
 // models/Wallet.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import User from "./user.js";
+import RfidCard from "./rfidcard.js";
 
 class Wallet extends Model {
-  static associate(models) {
-    // define association here
-    // Contoh: Wallet.belongsTo(models.User, { foreignKey: 'user_id' });
+  static associate() {
+    Wallet.belongsTo(User, { foreignKey: "user_id", as: "user" });
+    Wallet.belongsTo(RfidCard, {
+      foreignKey: "rfidcard_id",
+      as: "rfidCard",
+    });
   }
 }
 

@@ -1,11 +1,14 @@
 // models/TransactionNotification.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import User from "./user.js";
 
 class TransactionNotification extends Model {
-  static associate(models) {
-    // Contoh relasi:
-    // TransactionNotification.belongsTo(models.User, { foreignKey: 'user_id' });
+  static associate() {
+    TransactionNotification.belongsTo(User, {
+      foreignKey: "user_id",
+      as: "user",
+    });
   }
 }
 

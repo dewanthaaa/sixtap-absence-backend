@@ -1,10 +1,50 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import RfidCard from "./rfidcard.js";
+import Wallet from "./wallet.js";
+import Absence from "./Absence.js";
+import AbsenceNotification from "./absence-notif.js";
+import Transaction from "./transaction.js";
+import TransactionNotification from "./transaction-notif.js";
+import Role from "./role.js";
+import SchoolClass from "./schoolclass.js";
 
 export class User extends Model {
-  static associate(models) {
-    // Relasi antar model bisa didefinisikan di sini
-    // Contoh: User.belongsTo(models.Role, { foreignKey: 'role_id' });
+  static associate() {
+    // 1. User -> RFID Card = HasOne
+    User.hasOne(RfidCard, { foreignKey: "user_id", as: "rfidCard" });
+
+    // 2. User -> Wallet = HasOne
+    User.hasOne(Wallet, { foreignKey: "user_id", as: "wallet" });
+
+    // 3. User -> Absence = HasMany
+    User.hasMany(Absence, { foreignKey: "user_id", as: "absence" });
+
+    // 4. User -> Absence Notification = HasMany
+    User.hasMany(AbsenceNotification, {
+      foreignKey: "user_id",
+      as: "absenceNotification",
+    });
+
+    // 5. User -> Transaction = HasMany
+    User.hasMany(Transaction, {
+      foreignKey: "user_id",
+      as: "transaction",
+    });
+
+    // 6. User -> Transaction Notification = HasMany
+    User.hasMany(TransactionNotification, {
+      foreignKey: "user_id",
+      as: "transactionNotification",
+    });
+
+    // Relasi dengan Role dan SchoolClass (berdasarkan foreign key yang ada di model)
+    User.belongsTo(Role, { foreignKey: "role_id", as: "role" });
+
+    User.belongsTo(SchoolClass, {
+      foreignKey: "schoolclass_id",
+      as: "schoolClass",
+    });
   }
 }
 
