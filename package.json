@@ -1,0 +1,24 @@
+{
+  "name": "absensix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm index.js",
+    "dev": "npx nodemon index.js"
+  },
+  "author": "Dewantha",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.1",
+    "nodemon": "^3.1.10",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.3"
+  }
+}
