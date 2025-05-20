@@ -1,6 +1,5 @@
 // models/Transaction.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../Config/Database.js";
 import User from "./user.js";
 import RfidCard from "./rfidcard.js";
 import Canteen from "./canteen.js";

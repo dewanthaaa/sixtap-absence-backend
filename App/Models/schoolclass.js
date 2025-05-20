@@ -1,6 +1,5 @@
 // models/schoolclass.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../Config/Database.js";
 import User from "./user.js";
 
 export class SchoolClass extends Model {

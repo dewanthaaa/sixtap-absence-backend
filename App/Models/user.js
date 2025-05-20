@@ -1,5 +1,4 @@
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../Config/Database.js";
 import RfidCard from "./rfidcard.js";
 import Wallet from "./wallet.js";
 import Absence from "./Absence.js";

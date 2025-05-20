@@ -1,6 +1,5 @@
 // models/TransactionNotification.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../Config/Database.js";
 import User from "./user.js";
 
 class TransactionNotification extends Model {

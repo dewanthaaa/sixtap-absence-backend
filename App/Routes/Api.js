@@ -1,4 +1,5 @@
 import express from "express";
+import AuthController from "../Controllers/authController.js";
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get("/", (req, res) => {
 });
 
 //Login
-router.post("/api/v1/login", authController.login);
+router.post("/api/v1/login", AuthController.login);
 
 module.exports = router;
 

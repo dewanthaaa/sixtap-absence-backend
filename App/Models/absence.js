@@ -1,22 +1,18 @@
-// models/RfidCard.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../Config/Database.js";
 import User from "./user.js";
-import Wallet from "./wallet.js";
-import Transaction from "./transaction.js";
+import AbsenceNotification from "./absence-notif.js";
 
-class RfidCard extends Model {
+export class Absence extends Model {
   static associate() {
-    RfidCard.belongsTo(User, { foreignKey: "user_id", as: "user" });
-    RfidCard.hasOne(Wallet, { foreignKey: "rfidcard_id", as: "wallet" });
-    RfidCard.hasMany(Transaction, {
-      foreignKey: "rfidcard_id",
-      as: "transactions",
+    Absence.belongsTo(User, { foreignKey: "user_id", as: "user" });
+    Absence.hasOne(AbsenceNotification, {
+      foreignKey: "absence_id",
+      as: "notification",
     });
   }
 }
 
-RfidCard.init(
+Absence.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -35,12 +31,24 @@ RfidCard.init(
         len: [3, 100],
       },
     },
-    card_uid: {
+    day: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    is_active: {
-      type: DataTypes.BOOLEAN,
+    time_in: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    time_out: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.ENUM("hadir", "sakit", "izin", "alpa"),
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "approved", "rejected"),
       allowNull: false,
     },
     activated_at: {
@@ -54,10 +62,11 @@ RfidCard.init(
   },
   {
     sequelize,
-    modelName: "RfidCard",
-    tableName: "RfidCard",
+    modelName: "Absence",
+    tableName: "Absence",
     timestamps: true,
+    underscored: true,
   }
 );
 
-export default RfidCard;
+export default Absence;
