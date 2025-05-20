@@ -1,12 +1,14 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import UserModel from "../Models/user.js"; // Pastikan path dan ekstensi sesuai
-import RoleModel from "../Models/role.js"; // Jika perlu di-include manual
+import User from "../Models/user.js"; // Pastikan path dan ekstensi sesuai
+import Role from "../Models/role.js"; // Jika perlu di-include manual
 
 class AuthController {
   async login(req, res) {
     try {
       const { identifier, password } = req.body;
+      console.log(identifier);
+      console.log(password);
 
       // Validasi input
       if (!identifier) {
@@ -30,9 +32,9 @@ class AuthController {
       const isNumeric = /^\d+$/.test(identifier);
 
       // Cari user berdasarkan NIS atau email, sertakan relasi ke role
-      let user = await UserModel.findOne({
+      let user = await User.findOne({
         where: isNumeric ? { nis: identifier } : { email: identifier },
-        include: [{ model: RoleModel, as: "role" }],
+        include: [{ model: Role, as: "role" }],
       });
 
       // Jika user tidak ditemukan

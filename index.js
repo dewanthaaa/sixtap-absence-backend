@@ -1,5 +1,5 @@
 import express from "express";
-import router from "./Routes/Api.js";
+import router from "./App/Routes/Api.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -8,6 +8,8 @@ const app = express();
 
 //Routing
 app.use(router);
+
+app.use(express.json());
 
 //Server
 app.listen(PORT, () => {

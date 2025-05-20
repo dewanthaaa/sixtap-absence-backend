@@ -4,24 +4,24 @@ dotenv.config();
 
 export default {
   development: {
-    username: "root",
+    username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    database: "db_absensix",
-    host: "127.0.0.1",
+    database: process.env.DB_DEV_NAME,
+    host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
   },
   test: {
-    username: "root",
+    username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    database: "db_absensix",
-    host: "127.0.0.1",
+    database: process.env.DB_DEV_NAME,
+    host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
   },
   production: {
-    username: "root",
+    username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    database: "db_absensix",
-    host: "127.0.0.1",
+    database: process.env.DB_DEV_NAME,
+    host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
   },
 };
