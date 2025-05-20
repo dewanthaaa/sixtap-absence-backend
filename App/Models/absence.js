@@ -29,36 +29,56 @@ Absence.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100],
       },
     },
     day: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     time_in: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     time_out: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     type: {
       type: DataTypes.ENUM("hadir", "sakit", "izin", "alpa"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     status: {
       type: DataTypes.ENUM("active", "approved", "rejected"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     activated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     blocked_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

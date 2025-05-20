@@ -7,8 +7,6 @@ class AuthController {
   async login(req, res) {
     try {
       const { identifier, password } = req.body;
-      console.log(identifier);
-      console.log(password);
 
       // Validasi input
       if (!identifier) {
@@ -30,7 +28,6 @@ class AuthController {
       }
 
       const isNumeric = /^\d+$/.test(identifier);
-
       // Cari user berdasarkan NIS atau email, sertakan relasi ke role
       let user = await User.findOne({
         where: isNumeric ? { nis: identifier } : { email: identifier },
@@ -45,21 +42,22 @@ class AuthController {
       }
 
       // Validasi peran pengguna
-      const userRoleName = user.role?.name?.toLowerCase() || "";
-      let validRole = false;
+      const userRoleName = user.role?.role_name?.toLowerCase() || "";
+      let isRoleAllowed = false;
 
       if (isNumeric) {
-        validRole = userRoleName !== "siswa";
+        isRoleAllowed = userRoleName === "siswa";
       } else {
-        validRole = ![
+        const allowedRoles = [
           "admin",
           "petinggi sekolah",
           "penjaga kantin",
           "wali kelas",
-        ].includes(userRoleName);
+        ];
+        isRoleAllowed = allowedRoles.includes(userRoleName);
       }
 
-      if (validRole) {
+      if (!isRoleAllowed) {
         return res.status(401).json({
           message: isNumeric
             ? "NIS hanya untuk login siswa"
@@ -77,8 +75,14 @@ class AuthController {
 
       // Buat token JWT
       const token = jwt.sign(
-        { id: user.id, nis: user.nis, email: user.email },
-        process.env.JWT_SECRET || "default_secret_key",
+        {
+          id: user.id,
+          name: user.name,
+          nis: user.nis,
+          email: user.email,
+          role_name: userRoleName,
+        },
+        process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
 
@@ -95,8 +99,17 @@ class AuthController {
       console.error("Login error:", error);
       return res.status(500).json({
         message: "Terjadi kesalahan pada server",
+        error: error.message,
       });
     }
+  }
+
+  logout(req, res) {
+    res.clearCookie("access_token");
+
+    return res.status(200).json({
+      message: "Logout berhasil. Token dihapus dari client.",
+    });
   }
 }
 

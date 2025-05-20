@@ -1,9 +1,11 @@
 import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+dotenv.config();
 
 let dbName;
-process.env.STATUS == "DEVELOPMENT"
-  ? (dbName = process.env.DB_PROD_NAME)
-  : (dbName = process.env.DB_DEV_NAME);
+process.env.STATUS === "DEVELOPMENT"
+  ? (dbName = process.env.DB_DEV_NAME)
+  : (dbName = process.env.DB_PROD_NAME);
 
 const sequelize = new Sequelize(
   dbName,
@@ -14,6 +16,7 @@ const sequelize = new Sequelize(
     dialect: "mysql",
   }
 );
+
 
 const connection = async () => {
   try {

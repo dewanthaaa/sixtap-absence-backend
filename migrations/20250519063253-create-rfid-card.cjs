@@ -20,7 +20,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      isActive: {
+      is_active: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
       },
@@ -29,7 +29,7 @@ module.exports = {
         type: Sequelize.DATE,
       },
       blocked_at: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE,
       },
       createdAt: {

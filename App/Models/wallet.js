@@ -19,6 +19,9 @@ Wallet.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     rfid_card_id: {
       type: DataTypes.INTEGER,
@@ -29,9 +32,12 @@ Wallet.init(
       allowNull: true,
     },
     balance: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
       defaultValue: 0.0,
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

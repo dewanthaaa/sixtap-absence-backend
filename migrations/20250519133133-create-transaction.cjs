@@ -16,7 +16,7 @@ module.exports = {
       },
       canteen_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       type: {
         type: Sequelize.ENUM("purchase", "topup", "refund"),

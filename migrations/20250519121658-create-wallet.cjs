@@ -12,9 +12,11 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       rfid_card_id: {
         type: Sequelize.INTEGER,
+        allowNull: false
       },
       last_top_up: {
         type: Sequelize.DATE,

@@ -24,22 +24,34 @@ Transaction.init(
     rfid_card_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     canteen_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     type: {
-      type: DataTypes.ENUM("purchase", "topup", "refund"),
+      type: DataTypes.ENUM("pembelian", "refund", "top up"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     status: {
-      type: DataTypes.ENUM("success", "pending", "failed"),
+      type: DataTypes.ENUM("berhasil", "gagal"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     amount: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

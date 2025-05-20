@@ -32,24 +32,33 @@ RfidCard.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100],
       },
     },
     card_uid: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     activated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     blocked_at: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {

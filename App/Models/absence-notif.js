@@ -22,26 +22,44 @@ AbsenceNotification.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     message: {
       type: DataTypes.TEXT("long"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     type: {
       type: DataTypes.ENUM("absensi", "sistem", "pemberitahuan"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     status: {
       type: DataTypes.ENUM("read", "unread"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     sent_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     absence_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

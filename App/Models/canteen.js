@@ -15,19 +15,28 @@ class Canteen extends Model {
 Canteen.init(
   {
     initial_balance: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
       defaultValue: 0.0,
+      validate: {
+        notEmpty: true,
+      },
     },
     current_balance: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
       defaultValue: 0.0,
+      validate: {
+        notEmpty: true,
+      },
     },
     is_settled: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     settlement_time: {
       type: DataTypes.DATE,

@@ -17,22 +17,37 @@ TransactionNotification.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     message: {
       type: DataTypes.TEXT("long"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     type: {
-      type: DataTypes.ENUM("transaction", "sistem", "pemberitahuan"),
+      type: DataTypes.ENUM("pembelian", "refund", "top up"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     status: {
-      type: DataTypes.ENUM("read", "unread"),
+      type: DataTypes.ENUM("berhasil", "gagal"),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     sent_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

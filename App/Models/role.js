@@ -25,7 +25,6 @@ Role.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100],
       },
     },
   },

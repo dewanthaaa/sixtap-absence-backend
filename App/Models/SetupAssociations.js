@@ -1,13 +1,13 @@
-import User from "./models/User.js";
-import Role from "./models/Role.js";
-import SchoolClass from "./models/SchoolClass.js";
-import RfidCard from "./models/RfidCard.js";
-import Wallet from "./models/Wallet.js";
-import Absence from "./models/Absence.js";
-import AbsenceNotification from "./models/AbsenceNotification.js";
-import Transaction from "./models/Transaction.js";
-import TransactionNotification from "./models/TransactionNotification.js";
-import Canteen from "./models/Canteen.js";
+import User from "./user.js";
+import Role from "./role.js";
+import SchoolClass from "./schoolclass.js";
+import RfidCard from "./rfidcard.js";
+import Wallet from "./wallet.js";
+import Absence from "./Absence.js";
+import AbsenceNotification from "./absence-notif.js";
+import Transaction from "./transaction.js";
+import TransactionNotification from "./transaction-notif.js";
+import Canteen from "./canteen.js";
 
 const setupAssociations = () => {
   // Role -> User
@@ -22,11 +22,11 @@ const setupAssociations = () => {
 
   // SchoolClass -> User
   SchoolClass.hasMany(User, {
-    foreignKey: "school_class_id",
+    foreignKey: "schoolclass_id",
     as: "users",
   });
   User.belongsTo(SchoolClass, {
-    foreignKey: "school_class_id",
+    foreignKey: "schoolclass_id",
     as: "schoolClass",
   });
 

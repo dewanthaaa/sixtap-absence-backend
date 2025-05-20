@@ -64,7 +64,6 @@ User.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100],
       },
     },
     email: {
@@ -123,6 +122,9 @@ User.init(
     tableName: "User",
     timestamps: true, // jika kamu ingin createdAt dan updatedAt otomatis
     underscored: true, // akan pakai snake_case di nama kolom
+    defaultScope: {
+      attributes: { exclude: ['password'] }
+    }
   }
 );
 
