@@ -21,6 +21,13 @@ class Transaction extends Model {
 
 Transaction.init(
   {
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     rfid_card_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -57,7 +64,7 @@ Transaction.init(
   {
     sequelize,
     modelName: "Transaction",
-     underscored: true,
+    underscored: true,
     timestamps: true,
   }
 );

@@ -10,6 +10,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+
       rfid_card_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
