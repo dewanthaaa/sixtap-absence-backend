@@ -5,7 +5,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("SchoolClass", {
+    await queryInterface.createTable("school_classes", {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -20,11 +20,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -35,6 +35,6 @@ module.exports = {
    * Rollback migration untuk menghapus tabel SchoolClass
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("SchoolClass");
+    await queryInterface.dropTable("school_classes");
   },
 };

@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Canteen", {
+    await queryInterface.createTable("canteens", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,11 +11,11 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       initial_balance: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(12, 2),
         allowNull: false,
       },
       current_balance: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(12, 2),
         allowNull: false,
       },
       is_settled: {
@@ -26,11 +26,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -38,6 +38,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable("Canteen");
+    await queryInterface.dropTable("canteens");
   },
 };

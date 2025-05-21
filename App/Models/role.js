@@ -31,8 +31,8 @@ Role.init(
   {
     sequelize,
     modelName: "Role",
-    tableName: "Role", // optional: bisa diatur jika kamu ingin nama tabel pasti
-    timestamps: true, // sesuaikan jika kamu pakai createdAt dan updatedAt
+    timestamps: true,
+    underscored: true,
   }
 );
 

@@ -32,9 +32,7 @@ class AuthController {
       let user = await User.findOne({
         where: isNumeric ? { nis: identifier } : { email: identifier },
         include: [{ model: Role, as: "role" }],
-        attributes: { include: ["password"] },
       });
-      console.log(user);
 
       // Jika user tidak ditemukan
       if (!user) {
@@ -95,6 +93,8 @@ class AuthController {
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
+      const userData = user.toJSON();
+      delete userData.password;
 
       // Respon sukses
       return res.status(200).json({
@@ -103,7 +103,7 @@ class AuthController {
             ? "Login siswa berhasil"
             : `Login berhasil sebagai ${userRoleName}`,
         access_token: token,
-        data: { user },
+        data: { userData },
       });
     } catch (error) {
       console.error("Login error:", error);

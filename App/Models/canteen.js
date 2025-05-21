@@ -46,8 +46,8 @@ Canteen.init(
   {
     sequelize,
     modelName: "Canteen",
-    tableName: "Canteen", // gunakan ini jika ingin tabel bernama tunggal
-    timestamps: true, // createdAt dan updatedAt akan otomatis ditambahkan
+    timestamps: true,
+     underscored: true,
   }
 );
 

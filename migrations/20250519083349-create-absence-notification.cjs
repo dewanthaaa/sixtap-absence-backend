@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("AbsenceNotification", {
+    await queryInterface.createTable("absence_notifications", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -34,11 +34,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -46,6 +46,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("AbsenceNotification");
+    await queryInterface.dropTable("absence_notifications");
   },
 };

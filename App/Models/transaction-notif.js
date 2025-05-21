@@ -53,7 +53,7 @@ TransactionNotification.init(
   {
     sequelize,
     modelName: "TransactionNotification",
-    tableName: "TransactionNotification",
+     underscored: true,
     timestamps: true,
   }
 );

@@ -8,7 +8,7 @@ module.exports = {
     const hashedPasswordSiswa = await bcrypt.hash("siswa#123", 10);
 
     await queryInterface.bulkInsert(
-      "user",
+      "users",
       [
         {
           id: 1,

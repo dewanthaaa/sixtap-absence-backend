@@ -119,12 +119,8 @@ User.init(
   {
     sequelize,
     modelName: "User",
-    tableName: "User",
-    timestamps: true, // jika kamu ingin createdAt dan updatedAt otomatis
-    underscored: true, // akan pakai snake_case di nama kolom
-    defaultScope: {
-      attributes: { exclude: ['password'] }
-    }
+    underscored: true,
+    timestamps: true,
   }
 );
 

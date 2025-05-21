@@ -23,7 +23,7 @@ class UserManagementController {
         ],
         limit,
         offset,
-        order: [["createdAt", "DESC"]],
+        order: [["created_at", "DESC"]],
       });
 
       if (!users || users.count === 0) {

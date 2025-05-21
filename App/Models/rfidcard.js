@@ -64,8 +64,8 @@ RfidCard.init(
   {
     sequelize,
     modelName: "RfidCard",
-    tableName: "RfidCard",
     timestamps: true,
+     underscored: true,
   }
 );
 

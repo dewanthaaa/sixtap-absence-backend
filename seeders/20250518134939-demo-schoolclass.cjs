@@ -17,13 +17,13 @@ module.exports = {
             .replace("X", "1")
             .replace("XI", "2")
             .replace("XII", "3")}${j.charAt(0)}${j.charAt(1)}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          created_at: new Date(),
+          updated_at: new Date(),
         });
       }
     }
 
-    await queryInterface.bulkInsert("schoolclass", kelas, {});
+    await queryInterface.bulkInsert("school_classes", kelas, {});
   },
 
   down: async (queryInterface, Sequelize) => {

@@ -65,8 +65,8 @@ AbsenceNotification.init(
   {
     sequelize,
     modelName: "AbsenceNotification",
-    tableName: "AbsenceNotification", // nama tabel, opsional bisa diubah
-    timestamps: true, // sesuaikan sesuai kebutuhan
+    timestamps: true,
+     underscored: true,
   }
 );
 

@@ -43,7 +43,7 @@ Wallet.init(
   {
     sequelize,
     modelName: "Wallet",
-    tableName: "Wallet", // optional, jika kamu pakai nama plural eksplisit
+     underscored: true,
     timestamps: true, // default true, bisa diatur jika tidak perlu
   }
 );

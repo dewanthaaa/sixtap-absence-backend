@@ -41,8 +41,8 @@ SchoolClass.init(
   {
     sequelize,
     modelName: "SchoolClass",
-    tableName: "SchoolClass", // optional, tapi baik jika kamu ingin pastikan nama tabel plural
-    timestamps: true, // jika kamu pakai createdAt dan updatedAt, biarkan true
+    timestamps: true,
+     underscored: true,
   }
 );
 

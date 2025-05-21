@@ -4,7 +4,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Role", {
+    await queryInterface.createTable("roles", {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -15,11 +15,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -30,6 +30,6 @@ module.exports = {
    * Rollback migration untuk menghapus tabel Role
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Role");
+    await queryInterface.dropTable("roles");
   },
 };

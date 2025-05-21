@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Transaction", {
+    await queryInterface.createTable("transactions", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -19,22 +19,22 @@ module.exports = {
         allowNull: true,
       },
       type: {
-        type: Sequelize.ENUM("purchase", "topup", "refund"),
+        type: Sequelize.ENUM("pembelian", "refund", "top up"),
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("success", "pending", "failed"),
+        type: Sequelize.ENUM("berhasil", "gagal"),
         allowNull: false,
       },
       amount: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(12, 2),
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -42,6 +42,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable("Transaction");
+    await queryInterface.dropTable("transactions");
   },
 };

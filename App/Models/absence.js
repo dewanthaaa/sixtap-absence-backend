@@ -84,7 +84,6 @@ Absence.init(
   {
     sequelize,
     modelName: "Absence",
-    tableName: "Absence",
     timestamps: true,
     underscored: true,
   }

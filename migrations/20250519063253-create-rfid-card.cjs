@@ -5,7 +5,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("RfidCard", {
+    await queryInterface.createTable("rfid_cards", {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -32,11 +32,11 @@ module.exports = {
         allowNull: true,
         type: Sequelize.DATE,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
@@ -47,6 +47,6 @@ module.exports = {
    * Rollback migration untuk menghapus tabel RfidCard
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("RfidCard");
+    await queryInterface.dropTable("rfid_cards");
   },
 };
