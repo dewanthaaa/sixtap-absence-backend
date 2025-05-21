@@ -32,7 +32,9 @@ class AuthController {
       let user = await User.findOne({
         where: isNumeric ? { nis: identifier } : { email: identifier },
         include: [{ model: Role, as: "role" }],
+        attributes: { include: ["password"] },
       });
+      console.log(user);
 
       // Jika user tidak ditemukan
       if (!user) {
@@ -65,8 +67,16 @@ class AuthController {
         });
       }
 
+      if (!user.password) {
+        return res.status(500).json({
+          message:
+            "User tidak memiliki password yang tersimpan. Silakan cek data pengguna.",
+        });
+      }
+
       // Cek password
       const isPasswordValid = await bcrypt.compare(password, user.password);
+
       if (!isPasswordValid) {
         return res.status(401).json({
           message: "Password salah",
