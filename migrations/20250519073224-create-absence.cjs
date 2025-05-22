@@ -9,8 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      absence_id: {
+      user_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       day: {
         type: Sequelize.STRING,
@@ -22,10 +23,10 @@ module.exports = {
         type: Sequelize.DATE,
       },
       type: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM("hadir", "izin", "sakit", "alpa"),
       },
       status: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM("active", "approved", "rejected"),
       },
       created_at: {
         allowNull: false,

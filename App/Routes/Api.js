@@ -1,11 +1,10 @@
 import express from "express";
 import AuthController from "../Controllers/authController.js";
 import AuthenticateToken from "../Middlewares/authenticateToken.js";
-import UserManagementController from "../Controllers/userManagementController.js";
-import CardManagemenController from "../Controllers/cardManagementController.js";
-import CheckRole from "../Middlewares/checkRole.js";
 import checkRole from "../Middlewares/checkRole.js";
-import absenceRecapController from "../Controllers/absenceRecapController.js";
+import UserManagementController from "../Controllers/userManagementController.js";
+import CardManagementController from "../Controllers/cardManagementController.js";
+import RecapController from "../Controllers/recapController.js";
 
 const router = express.Router();
 
@@ -17,37 +16,37 @@ router.post("/logout", AuthenticateToken, AuthController.logout);
 router.get(
   "/users",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.index
 );
 router.get(
   "/users/:id",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.userDetail
 );
 router.post(
   "/users",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.create
 );
 router.put(
   "/users/:id",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.update
 );
 router.delete(
   "/users/:id",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.destroy
 );
 router.post(
   "/users/:id/reset-password",
   AuthenticateToken,
-  CheckRole("admin"),
+  checkRole("admin"),
   UserManagementController.resetPassword
 );
 
@@ -55,40 +54,40 @@ router.post(
 router.post(
   "/card/check-user",
   AuthenticateToken,
-  CheckRole(["admin", "penjaga kantin", "siswa"]),
-  CardManagemenController.checkUserByNis
+  checkRole(["admin", "penjaga kantin", "siswa"]),
+  CardManagementController.checkUserByNis
 );
 router.post(
   "/card/check-card",
   AuthenticateToken,
-  CheckRole(["admin", "penjaga kantin", "siswa"]),
-  CardManagemenController.checkCardByUid
+  checkRole(["admin", "penjaga kantin", "siswa"]),
+  CardManagementController.checkCardByUid
 );
 router.post(
   "/card/activate",
   AuthenticateToken,
-  CheckRole("admin"),
-  CardManagemenController.cardActivation
+  checkRole("admin"),
+  CardManagementController.cardActivation
 );
 router.post(
   "/card/block",
   AuthenticateToken,
-  CheckRole("admin"),
-  CardManagemenController.blockCard
+  checkRole("admin"),
+  CardManagementController.blockCard
 );
 //Ganti Kartu baru dengan wallet yang sama (Kasus kartu hilang)
 router.post(
   "/card/renew",
   AuthenticateToken,
-  CheckRole("admin"),
-  CardManagemenController.renewCard
+  checkRole("admin"),
+  CardManagementController.renewCard
 );
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)
-router.get(
+router.post(
   "/absence",
   AuthenticateToken,
   checkRole(["admin", "wali kelas", "petinggi sekolah"]),
-  absenceRecapController.recap
+  RecapController.recapAbsence
 );
 export default router;
