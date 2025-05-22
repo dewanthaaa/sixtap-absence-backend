@@ -60,6 +60,10 @@ Transaction.init(
         notEmpty: true,
       },
     },
+    note: {
+      type: DataTypes.TEXT("long"),
+      allowNull: true,
+    },
   },
   {
     sequelize,

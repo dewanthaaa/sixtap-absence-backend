@@ -3,17 +3,38 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    let id = 1;
-
     await queryInterface.bulkInsert(
       "absences",
       [
         {
-          id: id++,
           user_id: 2,
-          day: "Senin",
-          time_in: "2025-02-03 06:01:31",
-          time_out: "2025-02-03 14:45:31",
+          day: "Monday",
+          time_in: new Date("2025-01-15 06:05:00"), // Format Date object
+          time_out: new Date("2025-01-15 14:45:00"),
+          type: "hadir",
+          status: "approved",
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        {
+          user_id: 2,
+          day: "Tuesday",
+          time_in: new Date("2025-01-16 06:00:00"), // Format string ISO
+          time_out: new Date("2025-01-16 14:30:00"),
+          type: "hadir",
+          status: "approved",
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        {
+          user_id: 2,
+          day: "Wednesday",
+          time_in: new Date("2025-01-16 06:00:00"), // Dengan timezone
+          time_out: new Date("2025-01-16 14:35:00"),
+          type: "hadir",
+          status: "approved",
+          created_at: new Date(),
+          updated_at: new Date(),
         },
       ],
       {}

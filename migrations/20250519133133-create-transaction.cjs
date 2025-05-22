@@ -35,6 +35,10 @@ module.exports = {
         type: Sequelize.DECIMAL(12, 2),
         allowNull: false,
       },
+      note: {
+        type: Sequelize.TEXT("long"),
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
