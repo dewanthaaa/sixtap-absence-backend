@@ -85,7 +85,7 @@ User.init(
       allowNull: true,
     },
     pin: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     nis: {
