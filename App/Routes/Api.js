@@ -4,6 +4,8 @@ import AuthenticateToken from "../Middlewares/authenticateToken.js";
 import UserManagementController from "../Controllers/userManagementController.js";
 import CardManagemenController from "../Controllers/cardManagementController.js";
 import CheckRole from "../Middlewares/checkRole.js";
+import checkRole from "../Middlewares/checkRole.js";
+import absenceRecapController from "../Controllers/absenceRecapController.js";
 
 const router = express.Router();
 
@@ -80,5 +82,13 @@ router.post(
   AuthenticateToken,
   CheckRole("admin"),
   CardManagemenController.renewCard
+);
+
+//Rekap Absensi (Masih Salah, Belum Dicoba)
+router.get(
+  "/absence",
+  AuthenticateToken,
+  checkRole(["admin", "wali kelas", "petinggi sekolah"]),
+  absenceRecapController.recap
 );
 export default router;
