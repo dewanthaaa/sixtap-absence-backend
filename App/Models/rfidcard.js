@@ -7,12 +7,16 @@ import Transaction from "./transaction.js";
 
 class RfidCard extends Model {
   static associate() {
-    RfidCard.belongsTo(User, { foreignKey: "user_id", as: "user" });
     RfidCard.hasOne(Wallet, { foreignKey: "rfidcard_id", as: "wallet" });
     RfidCard.hasMany(Transaction, {
       foreignKey: "rfidcard_id",
       as: "transactions",
     });
+    RfidCard.hasMany(Absence, {
+      foreignKey: "rfidcard_id",
+      as: "absences",
+    });
+    RfidCard.belongsTo(User, { foreignKey: "user_id", as: "user" });
   }
 }
 
@@ -65,7 +69,7 @@ RfidCard.init(
     sequelize,
     modelName: "RfidCard",
     timestamps: true,
-     underscored: true,
+    underscored: true,
   }
 );
 

@@ -2,7 +2,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 import User from "./user.js";
-import Absence from "./Absence.js";
+import Absence from "./absence.js";
 
 export class AbsenceNotification extends Model {
   static associate() {
@@ -66,7 +66,7 @@ AbsenceNotification.init(
     sequelize,
     modelName: "AbsenceNotification",
     timestamps: true,
-     underscored: true,
+    underscored: true,
   }
 );
 

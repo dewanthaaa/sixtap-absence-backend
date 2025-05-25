@@ -5,6 +5,7 @@ import checkRole from "../Middlewares/checkRole.js";
 import UserManagementController from "../Controllers/userManagementController.js";
 import CardManagementController from "../Controllers/cardManagementController.js";
 import RecapController from "../Controllers/recapController.js";
+import absenceController from "../Controllers/absenceController.js";
 
 const router = express.Router();
 
@@ -83,11 +84,15 @@ router.post(
   CardManagementController.renewCard
 );
 
+//Proses Absensi
+router.post("/tap-in", absenceController.handleTapIn);
+router.post("/tap-out", absenceController.handleTapOut);
+
 //Rekap Absensi (Masih Salah, Belum Dicoba)
-router.post(
-  "/absence",
-  AuthenticateToken,
-  checkRole(["admin", "wali kelas", "petinggi sekolah"]),
-  RecapController.recapAbsence
-);
+// router.post(
+//   "/absence",
+//   AuthenticateToken,
+//   checkRole(["admin", "wali kelas", "petinggi sekolah"]),
+//   RecapController.recapAbsence
+// );
 export default router;

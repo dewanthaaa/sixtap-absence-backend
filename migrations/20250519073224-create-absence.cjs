@@ -13,20 +13,47 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      rfid_card_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       day: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       time_in: {
         type: Sequelize.DATE,
+        allowNull: false,
       },
       time_out: {
         type: Sequelize.DATE,
+        allowNull: true,
+      },
+      sum_attendance: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      sum_sick: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      sum_permission: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      sum_alpa: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       type: {
         type: Sequelize.ENUM("hadir", "izin", "sakit", "alpa"),
       },
       status: {
         type: Sequelize.ENUM("active", "approved", "rejected"),
+      },
+      info: {
+        type: Sequelize.TEXT("long"),
+        allowNull: true,
       },
       created_at: {
         allowNull: false,

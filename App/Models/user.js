@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 import RfidCard from "./rfidcard.js";
 import Wallet from "./wallet.js";
-import Absence from "./Absence.js";
+import Absence from "./absence.js";
 import AbsenceNotification from "./absence-notif.js";
 import Transaction from "./transaction.js";
 import TransactionNotification from "./transaction-notif.js";

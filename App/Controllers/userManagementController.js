@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import User from "../Models/user.js";
 import Role from "../Models/role.js";
 import SchoolClass from "../Models/schoolclass.js";
@@ -87,7 +88,7 @@ class UserManagementController {
         role_id,
         schoolclass_id,
         batch,
-        photo
+        photo,
       } = req.body;
 
       const existUser = await User.findOne({ where: { email } });
@@ -107,7 +108,7 @@ class UserManagementController {
         role_id,
         schoolclass_id: schoolclass_id || null,
         batch: batch || null,
-        photo: photo || null
+        photo: photo || null,
       });
 
       res.status(201).json({
@@ -141,7 +142,7 @@ class UserManagementController {
         schoolclass_id,
         password,
         batch,
-        photo
+        photo,
       } = req.body;
 
       if (email && email !== user.email) {
@@ -162,7 +163,7 @@ class UserManagementController {
         role_id,
         schoolclass_id: schoolclass_id || null,
         batch: batch || null,
-        photo: photo || null
+        photo: photo || null,
       };
 
       if (password && password.trim() !== "") {
@@ -217,14 +218,35 @@ class UserManagementController {
       user.password = await bcrypt.hash(newPassword, 10);
       await user.save();
 
-      //nanti ini dibikin function buat ngirim email dulu
-      res.json({
-        message: "Password berhasil di-reset.",
-        data: {
-          name: user.name,
-          email: user.email,
-          newPassword, // ini password baru kirim ke admin dulu (nanti ganti lewat email aja)
+      // Konfigurasi transporter email
+      const transporter = nodemailer.createTransport({
+        service: "gmail", // atau sesuaikan dengan provider kamu
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
         },
+      });
+
+      // Atur isi email
+      const mailOptions = {
+        from: `"SixTap" <${process.env.EMAIL_USER}>`,
+        to: user.email, // ambil email dari data user yang ditemukan
+        subject: "Reset Password Akun Anda",
+        text: ` Hai ${user.name}, Password akun Anda telah direset. Berikut adalah password baru Anda: ${newPassword}.
+        Silakan login ke sistem dan segera ubah password Anda untuk menjaga keamanan akun Anda.
+        
+        Terima kasih,
+        SixTap
+        `,
+      };
+
+      // Kirim email
+      await transporter.sendMail(mailOptions);
+
+      // Response sukses tanpa mengirim password ke frontend
+      res.status(200).json({
+        message:
+          "Password berhasil di-reset dan telah dikirim ke email pengguna.",
       });
     } catch (error) {
       res.status(500).json({

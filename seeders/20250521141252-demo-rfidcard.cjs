@@ -3,12 +3,31 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    let id = 1;
     await queryInterface.bulkInsert("rfid_cards", [
       {
-        id: id++,
+        id: 1,
         user_id: "2",
         card_uid: "113377",
+        is_active: true,
+        activated_at: new Date(),
+        blocked_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        id: 2,
+        user_id: "3",
+        card_uid: "113344",
+        is_active: true,
+        activated_at: new Date(),
+        blocked_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        id: 3,
+        user_id: "4",
+        card_uid: "113355",
         is_active: true,
         activated_at: new Date(),
         blocked_at: null,

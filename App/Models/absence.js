@@ -1,14 +1,19 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
+import RfidCard from "./rfidcard.js";
 import User from "./user.js";
 import AbsenceNotification from "./absence-notif.js";
 
 export class Absence extends Model {
   static associate() {
-    Absence.belongsTo(User, { foreignKey: "user_id", as: "user" });
     Absence.hasOne(AbsenceNotification, {
       foreignKey: "absence_id",
       as: "notification",
+    });
+    Absence.belongsTo(User, { foreignKey: "user_id", as: "user" });
+    Absence.belongsTo(RfidCard, {
+      foreignKey: "rfidcard_id",
+      as: "rfidCard",
     });
   }
 }
@@ -47,10 +52,27 @@ Absence.init(
     },
     time_out: {
       type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
+      allowNull: true,
+    },
+    sum_attendance: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    sum_sick: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    sum_permission: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    sum_alpa: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    info: {
+      type: DataTypes.TEXT("long"),
+      allowNull: true,
     },
     type: {
       type: DataTypes.ENUM("hadir", "sakit", "izin", "alpa"),
