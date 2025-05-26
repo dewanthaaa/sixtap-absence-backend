@@ -93,6 +93,15 @@ class AuthController {
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
+
+      // Set cookie
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 60 * 60 * 1000, // 1 jam
+      });
+
       const userData = user.toJSON();
       delete userData.password;
 
@@ -102,7 +111,7 @@ class AuthController {
           userRoleName === "siswa"
             ? "Login siswa berhasil"
             : `Login berhasil sebagai ${userRoleName}`,
-        access_token: token,
+        // access_token: token,
         data: { userData },
       });
     } catch (error) {

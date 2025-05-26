@@ -36,6 +36,13 @@ Absence.init(
         notEmpty: true,
       },
     },
+    rfid_card_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     day: {
       type: DataTypes.STRING,
       allowNull: false,

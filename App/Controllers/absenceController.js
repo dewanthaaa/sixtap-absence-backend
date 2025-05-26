@@ -33,7 +33,7 @@ class AbsenceController {
       console.log(user);
       //   const today = moment().format("YYYY-MM-DD");
 
-      // Cari record absence hari ini berdasarkan rfid_card_id
+      // Cari record absence hari ini berdasarkan rfid_card_id (ini coba dibuat variabel hari ini-nya)
       const todayAbsence = await Absence.findOne({
         where: {
           rfid_card_id: rfidCard.id,
@@ -45,7 +45,23 @@ class AbsenceController {
       });
 
       if (todayAbsence) {
-        return res.status(400).json({ message: "Kamu sudah absen hari ini." });
+        return res
+          .status(400)
+          .json({ message: "Kamu sudah absen hari ini.", data: todayAbsence });
+      }
+
+      // Validasi school hours (7:00 AM - 12:00 PM)
+      const currentHour = moment().hour();
+      const currentMinute = moment().minute();
+      const currentTime = currentHour * 60 + currentMinute; // minutes from midnight
+      const schoolStartTime = 7 * 60; // 7:00 AM
+      const schoolEndTime = 15 * 60; // 15:00 PM
+
+      if (currentTime < schoolStartTime || currentTime > schoolEndTime) {
+        return res.status(400).json({
+          success: false,
+          message: "Tap-in diluar jam sekolah (07:00 - 15:00)",
+        });
       }
 
       const statusTerlambat = moment().isAfter(moment().hour(6).minute(30));
@@ -113,6 +129,7 @@ class AbsenceController {
 
       todayAbsence.time_out = moment().toDate();
       await todayAbsence.save();
+      console.log(todayAbsence.time_out);
 
       return res.status(200).json({
         message: "Absensi pulang berhasil",
