@@ -1,6 +1,6 @@
 "use strict";
 
-/** @type {import('sequelize-cli').Migration} */
+/** @type {import('sequelize-cli').Seeder} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert("rfid_cards", [

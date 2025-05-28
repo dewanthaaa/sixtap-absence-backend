@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      schoolclass_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       day: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -45,10 +49,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      type: {
+      absence_status: {
         type: Sequelize.ENUM("hadir", "izin", "sakit", "alpa"),
       },
-      status: {
+      card_status: {
         type: Sequelize.ENUM("active", "approved", "rejected"),
       },
       info: {

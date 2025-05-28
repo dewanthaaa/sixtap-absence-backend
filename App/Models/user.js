@@ -18,7 +18,7 @@ export class User extends Model {
     User.hasOne(Wallet, { foreignKey: "user_id", as: "wallet" });
 
     // 3. User -> Absence = HasMany
-    User.hasMany(Absence, { foreignKey: "user_id", as: "absence" });
+    User.hasMany(Absence, { foreignKey: "user_id", as: "absences" });
 
     // 4. User -> Absence Notification = HasMany
     User.hasMany(AbsenceNotification, {

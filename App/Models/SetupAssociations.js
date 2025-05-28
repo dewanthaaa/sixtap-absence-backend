@@ -3,7 +3,7 @@ import Role from "./role.js";
 import SchoolClass from "./schoolclass.js";
 import RfidCard from "./rfidcard.js";
 import Wallet from "./wallet.js";
-import Absence from "./Absence.js";
+import Absence from "./absence.js";
 import AbsenceNotification from "./absence-notif.js";
 import Transaction from "./transaction.js";
 import TransactionNotification from "./transaction-notif.js";
@@ -26,6 +26,15 @@ const setupAssociations = () => {
     as: "users",
   });
   User.belongsTo(SchoolClass, {
+    foreignKey: "schoolclass_id",
+    as: "schoolClass",
+  });
+  // SchoolClass -> Absence
+  SchoolClass.hasMany(Absence, {
+    foreignKey: "schoolclass_id",
+    as: "absences",
+  });
+  Absence.belongsTo(SchoolClass, {
     foreignKey: "schoolclass_id",
     as: "schoolClass",
   });

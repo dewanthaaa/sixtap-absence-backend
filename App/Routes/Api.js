@@ -84,9 +84,22 @@ router.post(
   CardManagementController.renewCard
 );
 
-//Proses Absensi
+//Proses Absensi : Tap masuk
 router.post("/tap-in", absenceController.handleTapIn);
+
+//Proses Absensi : Tap pulang
 router.post("/tap-out", absenceController.handleTapOut);
+
+//Proses Absensi : Lihat Status Absensi
+router.get("/status-absen/:id", absenceController.getStudentAbsenceHistory);
+
+//Proses Absensi : Siswa Login Lihat Status Absensi Hari ini
+router.get(
+  "/absence/today",
+  AuthenticateToken,
+  checkRole(["admin", "siswa"]),
+  absenceController.getAbsenceHistoryToday
+);
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)
 // router.post(

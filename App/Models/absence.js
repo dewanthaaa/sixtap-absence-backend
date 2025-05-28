@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 import RfidCard from "./rfidcard.js";
+import SchoolClass from "./schoolclass.js";
 import User from "./user.js";
 import AbsenceNotification from "./absence-notif.js";
 
@@ -14,6 +15,10 @@ export class Absence extends Model {
     Absence.belongsTo(RfidCard, {
       foreignKey: "rfidcard_id",
       as: "rfidCard",
+    });
+    Absence.belongsTo(SchoolClass, {
+      foreignKey: "schoolclass_id",
+      as: "schoolClass",
     });
   }
 }
@@ -37,6 +42,13 @@ Absence.init(
       },
     },
     rfid_card_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    schoolclass_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -81,14 +93,14 @@ Absence.init(
       type: DataTypes.TEXT("long"),
       allowNull: true,
     },
-    type: {
+    absence_status: {
       type: DataTypes.ENUM("hadir", "sakit", "izin", "alpa"),
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
-    status: {
+    card_status: {
       type: DataTypes.ENUM("active", "approved", "rejected"),
       allowNull: false,
       validate: {
