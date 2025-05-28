@@ -98,7 +98,7 @@ router.get(
   "/absence/today",
   AuthenticateToken,
   checkRole(["admin", "siswa"]),
-  absenceController.getAbsenceHistoryToday
+  absenceController.getStudentAbsenceHistoryToday
 );
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)

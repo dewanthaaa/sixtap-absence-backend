@@ -185,7 +185,7 @@ class AbsenceController {
     }
   }
 
-  async getAbsenceHistoryToday(req, res) {
+  async getStudentAbsenceHistoryToday(req, res) {
     try {
       const studentId = req.user.id; // Ambil dari token (middleware auth)
 
@@ -243,6 +243,8 @@ class AbsenceController {
       });
     }
   }
+
+  async getAbsenceHistoryByClass(req, res) {}
 }
 
 export default new AbsenceController();
