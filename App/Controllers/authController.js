@@ -111,7 +111,7 @@ class AuthController {
           userRoleName === "siswa"
             ? "Login siswa berhasil"
             : `Login berhasil sebagai ${userRoleName}`,
-        // access_token: token,
+        access_token: token,
         data: { userData },
       });
     } catch (error) {

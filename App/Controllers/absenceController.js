@@ -1,9 +1,10 @@
 import moment from "moment";
+import { Op } from "sequelize";
 import RfidCard from "../Models/rfidcard.js";
 import User from "../Models/user.js";
 import Absence from "../Models/absence.js";
-import { Op } from "sequelize";
 import SchoolClass from "../Models/schoolclass.js";
+import calculateAttendanceStatistics from "../Helper/attendanceStatistic.js";
 
 class AbsenceController {
   async handleTapIn(req, res) {
@@ -20,7 +21,7 @@ class AbsenceController {
         include: {
           model: User,
           as: "user",
-          attributes: ["id", "name", "nis", "batch", "schoolclass_id"],
+          attributes: ["id", "name", "nis", "batch", "photo", "schoolclass_id"],
         },
       });
 
@@ -32,7 +33,6 @@ class AbsenceController {
 
       const user = rfidCard.user;
       console.log(user);
-      //   const today = moment().format("YYYY-MM-DD");
 
       // Cari record absence hari ini berdasarkan rfid_card_id (ini coba dibuat variabel hari ini-nya)
       const todayAbsence = await Absence.findOne({
@@ -56,7 +56,7 @@ class AbsenceController {
       const currentMinute = moment().minute();
       const currentTime = currentHour * 60 + currentMinute; // minutes from midnight
       const schoolStartTime = 7 * 60; // 7:00 AM
-      const schoolEndTime = 23 * 60; // 23:00 PM
+      const schoolEndTime = 15 * 60; // 15:00 PM
 
       if (currentTime < schoolStartTime || currentTime > schoolEndTime) {
         return res.status(400).json({
@@ -244,7 +244,167 @@ class AbsenceController {
     }
   }
 
-  async getAbsenceHistoryByClass(req, res) {}
+  async getAbsenceHistoryByClass(req, res) {
+    try {
+      const userId = req.user.id; // Dari JWT middleware
+      const {
+        startDate,
+        endDate,
+        studentId,
+        status,
+        page = 1,
+        limit = 10,
+        sortBy = "created_at",
+        sortOrder = "DESC",
+      } = req.query;
+
+      // 1. Validasi wali kelas dan ambil data kelas
+      const homeRoomTeacher = await User.findOne({
+        where: {
+          id: userId,
+          role_id: 5, // Role wali kelas
+        },
+        include: [
+          {
+            model: SchoolClass,
+            as: "schoolClass",
+            attributes: ["id", "class_name", "class_code"],
+          },
+        ],
+      });
+
+      if (!homeRoomTeacher) {
+        return res.status(403).json({
+          success: false,
+          message: "Akses ditolak. Anda bukan wali kelas.",
+        });
+      }
+
+      if (!homeRoomTeacher.schoolclass_id) {
+        return res.status(400).json({
+          success: false,
+          message: "Anda belum ditugaskan sebagai wali kelas.",
+        });
+      }
+
+      // 2. Ambil daftar siswa di kelas
+      const students = await User.findAll({
+        where: {
+          schoolclass_id: homeRoomTeacher.schoolclass_id,
+          role_id: { [Op.in]: [1, 2] }, // Assuming 1=siswa, 2=siswa lain
+        },
+        attributes: ["id", "name", "nis"],
+      });
+
+      const studentIds = students.map((student) => student.id);
+
+      if (studentIds.length === 0) {
+        return res.status(200).json({
+          success: true,
+          message: "Tidak ada siswa di kelas ini.",
+          data: {
+            attendances: [],
+            pagination: {},
+            statistics: {},
+          },
+        });
+      }
+
+      // 3. Build filter conditions
+      const whereConditions = {
+        user_id: { [Op.in]: studentIds },
+      };
+
+      // Filter berdasarkan tanggal
+      if (startDate || endDate) {
+        whereConditions.date = {};
+        if (startDate) {
+          whereConditions.date[Op.gte] = moment(startDate)
+            .startOf("day")
+            .toDate();
+        }
+        if (endDate) {
+          whereConditions.date[Op.lte] = moment(endDate).endOf("day").toDate();
+        }
+      }
+
+      // Filter berdasarkan siswa tertentu
+      if (studentId) {
+        whereConditions.user_id = studentId;
+      }
+
+      // Filter berdasarkan status absen
+      if (status) {
+        whereConditions.status = status;
+      }
+
+      // 4. Ambil data absensi dengan pagination
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+
+      const attendanceData = await Absence.findAndCountAll({
+        where: whereConditions,
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "name", "nis"],
+            where: {
+              schoolclass_id: homeRoomTeacher.schoolclass_id,
+            },
+          },
+        ],
+        order: [[sortBy, sortOrder.toUpperCase()]],
+        limit: parseInt(limit),
+        offset: offset,
+        distinct: true,
+      });
+
+      // 5. Hitung statistik kehadiran
+      const statistics = await calculateAttendanceStatistics(
+        studentIds,
+        startDate,
+        endDate
+      );
+
+      // 6. Format response
+      const totalPages = Math.ceil(attendanceData.count / parseInt(limit));
+
+      return res.status(200).json({
+        success: true,
+        message: "Data histori absen berhasil diambil.",
+        data: {
+          class: {
+            id: homeRoomTeacher.schoolclass_id,
+            class_name: homeRoomTeacher.schoolClass?.class_name,
+            class_code: homeRoomTeacher.schoolClass?.class_code,
+          },
+          attendances: attendanceData.rows,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalItems: attendanceData.count,
+            itemsPerPage: parseInt(limit),
+            hasNextPage: parseInt(page) < totalPages,
+            hasPreviousPage: parseInt(page) > 1,
+          },
+          statistics,
+          filters: {
+            startDate,
+            endDate,
+            studentId,
+            status,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error in getClassAttendanceHistory:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan server.",
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default new AbsenceController();

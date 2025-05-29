@@ -91,7 +91,11 @@ router.post("/tap-in", absenceController.handleTapIn);
 router.post("/tap-out", absenceController.handleTapOut);
 
 //Proses Absensi : Lihat Status Absensi
-router.get("/status-absen/:id", absenceController.getStudentAbsenceHistory);
+router.get(
+  "/status-absen/:id",
+  checkRole(["admin", "petinggi sekolah"]),
+  absenceController.getStudentAbsenceHistory
+);
 
 //Proses Absensi : Siswa Login Lihat Status Absensi Hari ini
 router.get(
@@ -99,6 +103,13 @@ router.get(
   AuthenticateToken,
   checkRole(["admin", "siswa"]),
   absenceController.getStudentAbsenceHistoryToday
+);
+
+//Proses Absensi : Wali Kelas Lihat Histori Absensi Hari ini Berdasarkan Kelas Id
+router.get(
+  "/absence/by-class",
+  AuthenticateToken,
+  absenceController.getAbsenceHistoryByClass
 );
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)
