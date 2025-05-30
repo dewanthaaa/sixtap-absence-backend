@@ -23,11 +23,11 @@ module.exports = {
         allowNull: true,
       },
       type: {
-        type: Sequelize.ENUM("pembelian", "refund", "top up"),
+        type: Sequelize.ENUM("pembelian", "refund", "top up", "pencairan"),
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("berhasil", "gagal"),
+        type: Sequelize.ENUM("berhasil", "gagal", "menunggu"),
         allowNull: false,
       },
       amount: {

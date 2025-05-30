@@ -40,14 +40,14 @@ Transaction.init(
       allowNull: true,
     },
     type: {
-      type: DataTypes.ENUM("pembelian", "refund", "top up"),
+      type: DataTypes.ENUM("pembelian", "refund", "top up", "pencairan"),
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
     status: {
-      type: DataTypes.ENUM("berhasil", "gagal"),
+      type: DataTypes.ENUM("berhasil", "gagal", "menunggu"),
       allowNull: false,
       validate: {
         notEmpty: true,

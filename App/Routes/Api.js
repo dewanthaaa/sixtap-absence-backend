@@ -38,6 +38,12 @@ router.put(
   checkRole("admin"),
   UserManagementController.update
 );
+router.put(
+  "/users/update-data",
+  AuthenticateToken,
+  checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
+  UserManagementController.updateUserOwnData
+);
 router.delete(
   "/users/:id",
   AuthenticateToken,
@@ -93,7 +99,7 @@ router.post("/tap-out", absenceController.handleTapOut);
 //Proses Absensi : Lihat Status Absensi
 router.get(
   "/status-absen/:id",
-  checkRole(["admin", "petinggi sekolah"]),
+  // checkRole(["admin", "petinggi sekolah"]),
   absenceController.getStudentAbsenceHistory
 );
 

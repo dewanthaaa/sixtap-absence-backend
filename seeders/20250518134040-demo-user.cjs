@@ -89,6 +89,22 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      {
+        id: 6,
+        name: "Galih",
+        email: "galih@email.com",
+        password: hashedPasswordWaliKelas,
+        phone: null,
+        pin: 461913,
+        nis: null,
+        nip: 201608987,
+        batch: null,
+        photo: null,
+        role_id: 5,
+        schoolclass_id: 3,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
   },
 

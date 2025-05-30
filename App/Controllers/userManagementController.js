@@ -7,6 +7,14 @@ import Wallet from "../Models/wallet.js";
 import bcrypt from "bcrypt";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
 
+const ROLES = {
+  ADMIN: 1,
+  SISWA: 2,
+  PETINGGI_SEKOLAH: 3,
+  PENJAGA_KANTIN: 4,
+  WALI_KELAS: 5,
+};
+
 class UserManagementController {
   async index(req, res) {
     try {
@@ -251,6 +259,54 @@ class UserManagementController {
     } catch (error) {
       res.status(500).json({
         message: "Terjadi kesalahan saat reset password.",
+        error: error.message,
+      });
+    }
+  }
+
+  async updateUserOwnData(req, res) {
+    try {
+      const userId = req.userId; // diasumsikan berasal dari middleware auth
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User tidak ditemukan" });
+      }
+
+      const { name, email, phone, pin, photo, nip, batch } = req.body;
+
+      let updateFields = {};
+
+      if (user.role_id === ROLES.WALI_KELAS) {
+        updateFields = { name, email, phone, pin, photo, nip };
+      } else if (user.role_id === ROLES.SISWA) {
+        updateFields = { name, email, phone, pin, photo, batch };
+      } else if (user.role_id === ROLES.PETINGGI_SEKOLAH) {
+        updateFields = { name, email, phone, pin, photo, nip };
+      } else if (user.role_id === ROLES.PENJAGA_KANTIN) {
+        updateFields = { name, email, phone, pin, nip };
+      } else {
+        return res.status(403).json({
+          message: "Role tidak diizinkan untuk melakukan pembaruan data ini",
+        });
+      }
+
+      // Hapus field yang tidak dikirim dalam request body
+      Object.keys(updateFields).forEach((key) => {
+        if (typeof updateFields[key] === "undefined") {
+          delete updateFields[key];
+        }
+      });
+
+      await user.update(updateFields);
+
+      return res
+        .status(200)
+        .json({ message: "Data berhasil diperbarui", data: user });
+    } catch (error) {
+      console.error("Update User Error:", error);
+      return res.status(500).json({
+        message: "Terjadi kesalahan pada server",
         error: error.message,
       });
     }
