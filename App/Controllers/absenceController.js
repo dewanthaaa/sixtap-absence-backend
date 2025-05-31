@@ -405,6 +405,142 @@ class AbsenceController {
       });
     }
   }
+
+  async getTodayAbsenceByHomeroomClass(req, res) {
+    try {
+      const userId = req.user.id; // Wali kelas dari token
+
+      // Validasi apakah user adalah wali kelas
+      const homeroomTeacher = await User.findOne({
+        where: { id: userId, role_id: 5 }, // Role wali kelas
+      });
+
+      if (!homeroomTeacher || !homeroomTeacher.schoolclass_id) {
+        return res.status(403).json({
+          success: false,
+          message: "Anda tidak memiliki akses sebagai wali kelas.",
+        });
+      }
+
+      const todayStart = moment().startOf("day").toDate();
+      const todayEnd = moment().endOf("day").toDate();
+
+      // Ambil semua data absensi hari ini berdasarkan kelas wali
+      const absencesToday = await Absence.findAll({
+        where: {
+          time_in: {
+            [Op.between]: [todayStart, todayEnd],
+          },
+        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            where: {
+              schoolclass_id: homeroomTeacher.schoolclass_id,
+            },
+            attributes: ["id", "name", "nis", "photo"],
+          },
+        ],
+        order: [["time_in", "ASC"]],
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Data absensi hari ini berhasil diambil.",
+        data: absencesToday.map((absence) => ({
+          absence_id: absence.id,
+          student_id: absence.user.id,
+          name: absence.user.name,
+          nis: absence.user.nis,
+          photo: absence.user.photo,
+          time_in: absence.time_in,
+          time_out: absence.time_out,
+          status: absence.absence_status,
+          info: absence.info,
+          editable: true, // karena hanya hari ini
+        })),
+      });
+    } catch (error) {
+      console.error("Error getTodayAbsenceByHomeroomClass:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan server.",
+        error: error.message,
+      });
+    }
+  }
+
+  async editTodayAbsenceStatus(req, res) {
+    try {
+      const userId = req.user.id; // wali kelas
+      const { absence_id } = req.params;
+      const { status, info } = req.body;
+
+      // Validasi wali kelas
+      const teacher = await User.findByPk(userId);
+      if (!teacher || teacher.role_id !== 5 || !teacher.schoolclass_id) {
+        return res.status(403).json({
+          success: false,
+          message: "Anda tidak memiliki akses.",
+        });
+      }
+
+      const absence = await Absence.findByPk(absence_id, {
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "schoolclass_id"],
+          },
+        ],
+      });
+
+      if (!absence) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Absensi tidak ditemukan" });
+      }
+
+      // Pastikan absensi adalah milik siswa di kelas wali tersebut
+      if (absence.user.schoolclass_id !== teacher.schoolclass_id) {
+        return res.status(403).json({
+          success: false,
+          message: "Data ini bukan dari siswa kelas Anda.",
+        });
+      }
+
+      // Pastikan hanya bisa edit di hari yang sama
+      const isToday = moment(absence.time_in).isSame(moment(), "day");
+      if (!isToday) {
+        return res.status(403).json({
+          success: false,
+          message: "Anda hanya bisa mengedit absensi pada hari yang sama.",
+        });
+      }
+
+      absence.absence_status = status;
+      absence.info = info;
+      await absence.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Status absensi berhasil diubah.",
+        data: {
+          id: absence.id,
+          status: absence.absence_status,
+          info: absence.info,
+        },
+      });
+    } catch (error) {
+      console.error("Error editTodayAbsenceStatus:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan server.",
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default new AbsenceController();

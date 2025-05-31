@@ -1,6 +1,5 @@
 import express from "express";
 import AuthController from "../Controllers/authController.js";
-// import AuthenticateToken from "../Middlewares/authenticateToken.js";
 import checkRole from "../Middlewares/checkRole.js";
 import UserManagementController from "../Controllers/userManagementController.js";
 import CardManagementController from "../Controllers/cardManagementController.js";
@@ -40,10 +39,10 @@ router.put(
   UserManagementController.update
 );
 router.put(
-  "/users/update-data",
+  "/users/update-profile",
   authenticateToken,
   checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
-  UserManagementController.updateUserOwnData
+  UserManagementController.updateUserProfile
 );
 router.delete(
   "/users/:id",

@@ -266,57 +266,160 @@ class UserManagementController {
     }
   }
 
-  async updateUserOwnData(req, res) {
+  async updateUserProfile(req, res) {
     try {
-      const userId = req.user.id;
-      const role = req.user.role_name?.toLowerCase();
-      console.log(userId);
+      const userId = req.user.id; // From authenticateToken middleware
+      // const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
 
-      // Ambil data dari req.body
-      const { name, email, phone, pin, photo, nis, nip, batch } = req.body;
-
-      // Mapping field yang bisa diupdate berdasarkan role_name
-      const roleFieldMap = {
-        "wali kelas": ["name", "email", "phone", "pin", "photo", "nip"],
-        siswa: ["name", "email", "phone", "pin", "photo", "nis", "batch"],
-        "petinggi sekolah": ["name", "email", "phone", "pin", "photo", "nip"],
-        "penjaga kantin": ["name", "email", "phone", "pin", "nip"],
-      };
-
-      const allowedFields = roleFieldMap[role];
-
-      if (!allowedFields) {
-        return res
-          .status(403)
-          .json({ message: "Role tidak diperbolehkan mengakses fitur ini." });
-      }
-
-      // Buat object update berdasarkan field yang diperbolehkan dan tersedia di req.body
-      const updateData = {};
-      allowedFields.forEach((field) => {
-        if (req.body.hasOwnProperty(field)) {
-          updateData[field] = req.body[field];
-        }
-      });
-
-      // Update data di database
+      // Find the user first
       const user = await User.findByPk(userId);
       if (!user) {
-        return res.status(404).json({ message: "User tidak ditemukan" });
+        return res.status(404).json({
+          success: false,
+          message: "User tidak ditemukan",
+        });
       }
 
+      // Define allowed fields for each role (using role names)
+      const allowedFieldsByRole = {
+        "petinggi sekolah": ["nip", "pin", "name", "email", "phone", "photo"],
+        "wali kelas": ["nip", "pin", "name", "email", "phone", "photo"],
+        "penjaga kantin": ["nip", "pin", "name", "email", "phone"],
+        siswa: ["nis", "pin", "name", "email", "phone", "photo", "batch"],
+      };
+
+      // Check if user role is allowed to update data
+      if (!allowedFieldsByRole[userRoleName]) {
+        return res.status(403).json({
+          success: false,
+          message: "Anda tidak memiliki akses untuk mengupdate data",
+        });
+      }
+
+      const allowedFields = allowedFieldsByRole[userRoleName];
+
+      // Filter request body to only include allowed fields
+      const updateData = {};
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+          updateData[field] = req.body[field];
+        }
+      }
+
+      // Check if there's any data to update
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Tidak ada data yang akan diupdate",
+        });
+      }
+
+      // Validate email format if email is being updated
+      if (updateData.email && !this.isValidEmail(updateData.email)) {
+        return res.status(400).json({
+          success: false,
+          message: "Format email tidak valid",
+        });
+      }
+
+      // Check if email is unique (excluding current user)
+      if (updateData.email) {
+        const existingUser = await User.findOne({
+          where: {
+            email: updateData.email,
+            id: { [Op.ne]: userId }, // Op.ne = not equal
+          },
+        });
+
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "Email sudah digunakan oleh user lain",
+          });
+        }
+      }
+
+      // Validate NIS uniqueness for students
+      if (updateData.nis) {
+        const existingNis = await User.findOne({
+          where: {
+            nis: updateData.nis,
+            id: { [Op.ne]: userId },
+          },
+        });
+
+        if (existingNis) {
+          return res.status(400).json({
+            success: false,
+            message: "NIS sudah digunakan oleh siswa lain",
+          });
+        }
+      }
+
+      // Validate NIP uniqueness for teachers/staff
+      if (updateData.nip) {
+        const existingNip = await User.findOne({
+          where: {
+            nip: updateData.nip,
+            id: { [Op.ne]: userId },
+          },
+        });
+
+        if (existingNip) {
+          return res.status(400).json({
+            success: false,
+            message: "NIP sudah digunakan oleh staff lain",
+          });
+        }
+      }
+
+      // Hash PIN if it's being updated
+      if (updateData.pin) {
+        const bcrypt = require("bcrypt");
+        updateData.pin = await bcrypt.hash(updateData.pin, 10);
+      }
+
+      // Update the user data
       await user.update(updateData);
 
-      res.status(200).json({
-        message: "Data berhasil diperbarui",
-        updatedData: updateData,
+      // Get updated user data (excluding sensitive information)
+      const updatedUser = await User.findByPk(userId, {
+        attributes: { exclude: ["password", "pin"] },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Data berhasil diupdate",
+        data: updatedUser,
       });
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ message: "Terjadi kesalahan server", error: error.message });
+      console.error("Error updating user data:", error);
+
+      // Handle Sequelize validation errors
+      if (error.name === "SequelizeValidationError") {
+        const validationErrors = error.errors.map((err) => ({
+          field: err.path,
+          message: err.message,
+        }));
+
+        return res.status(400).json({
+          success: false,
+          message: "Validation error",
+          errors: validationErrors,
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan internal server",
+      });
     }
+  }
+
+  // Helper method to validate email format
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }
 
