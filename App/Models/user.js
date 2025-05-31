@@ -81,7 +81,7 @@ User.init(
       },
     },
     phone: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     pin: {
@@ -89,11 +89,11 @@ User.init(
       allowNull: true,
     },
     nis: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     nip: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     batch: {

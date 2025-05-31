@@ -8,11 +8,11 @@ import bcrypt from "bcrypt";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
 
 const ROLES = {
-  ADMIN: 1,
-  SISWA: 2,
-  PETINGGI_SEKOLAH: 3,
-  PENJAGA_KANTIN: 4,
-  WALI_KELAS: 5,
+  admin: 1,
+  siswa: 2,
+  petinggi_sekolah: 3,
+  penjaga_kantin: 4,
+  wali_kelas: 5,
 };
 
 class UserManagementController {
@@ -119,9 +119,11 @@ class UserManagementController {
         photo: photo || null,
       });
 
+      const { password: _, ...responseUser } = user.toJSON(); // Hapus password
+
       res.status(201).json({
         message: "Pengguna berhasil dibuat.",
-        data: { user },
+        data: { responseUser },
       });
     } catch (error) {
       res.status(500).json({
@@ -266,49 +268,54 @@ class UserManagementController {
 
   async updateUserOwnData(req, res) {
     try {
-      const userId = req.userId; // diasumsikan berasal dari middleware auth
-      const user = await User.findByPk(userId);
+      const userId = req.user.id;
+      const role = req.user.role_name?.toLowerCase();
+      console.log(userId);
 
+      // Ambil data dari req.body
+      const { name, email, phone, pin, photo, nis, nip, batch } = req.body;
+
+      // Mapping field yang bisa diupdate berdasarkan role_name
+      const roleFieldMap = {
+        "wali kelas": ["name", "email", "phone", "pin", "photo", "nip"],
+        siswa: ["name", "email", "phone", "pin", "photo", "nis", "batch"],
+        "petinggi sekolah": ["name", "email", "phone", "pin", "photo", "nip"],
+        "penjaga kantin": ["name", "email", "phone", "pin", "nip"],
+      };
+
+      const allowedFields = roleFieldMap[role];
+
+      if (!allowedFields) {
+        return res
+          .status(403)
+          .json({ message: "Role tidak diperbolehkan mengakses fitur ini." });
+      }
+
+      // Buat object update berdasarkan field yang diperbolehkan dan tersedia di req.body
+      const updateData = {};
+      allowedFields.forEach((field) => {
+        if (req.body.hasOwnProperty(field)) {
+          updateData[field] = req.body[field];
+        }
+      });
+
+      // Update data di database
+      const user = await User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ message: "User tidak ditemukan" });
       }
 
-      const { name, email, phone, pin, photo, nip, batch } = req.body;
+      await user.update(updateData);
 
-      let updateFields = {};
-
-      if (user.role_id === ROLES.WALI_KELAS) {
-        updateFields = { name, email, phone, pin, photo, nip };
-      } else if (user.role_id === ROLES.SISWA) {
-        updateFields = { name, email, phone, pin, photo, batch };
-      } else if (user.role_id === ROLES.PETINGGI_SEKOLAH) {
-        updateFields = { name, email, phone, pin, photo, nip };
-      } else if (user.role_id === ROLES.PENJAGA_KANTIN) {
-        updateFields = { name, email, phone, pin, nip };
-      } else {
-        return res.status(403).json({
-          message: "Role tidak diizinkan untuk melakukan pembaruan data ini",
-        });
-      }
-
-      // Hapus field yang tidak dikirim dalam request body
-      Object.keys(updateFields).forEach((key) => {
-        if (typeof updateFields[key] === "undefined") {
-          delete updateFields[key];
-        }
+      res.status(200).json({
+        message: "Data berhasil diperbarui",
+        updatedData: updateData,
       });
-
-      await user.update(updateFields);
-
-      return res
-        .status(200)
-        .json({ message: "Data berhasil diperbarui", data: user });
     } catch (error) {
-      console.error("Update User Error:", error);
-      return res.status(500).json({
-        message: "Terjadi kesalahan pada server",
-        error: error.message,
-      });
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: "Terjadi kesalahan server", error: error.message });
     }
   }
 }
