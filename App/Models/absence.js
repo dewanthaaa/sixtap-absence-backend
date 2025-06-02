@@ -73,21 +73,12 @@ Absence.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
-    sum_attendance: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    sum_sick: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    sum_permission: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    sum_alpa: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     info: {
       type: DataTypes.TEXT("long"),
@@ -107,20 +98,6 @@ Absence.init(
         notEmpty: true,
       },
     },
-    // activated_at: {
-    //   type: DataTypes.DATE,
-    //   allowNull: false,
-    //   validate: {
-    //     notEmpty: true,
-    //   },
-    // },
-    // blocked_at: {
-    //   type: DataTypes.DATE,
-    //   allowNull: false,
-    //   validate: {
-    //     notEmpty: true,
-    //   },
-    // },
   },
   {
     sequelize,

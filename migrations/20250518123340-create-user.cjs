@@ -12,6 +12,14 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
+      role_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      schoolclass_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -48,14 +56,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      role_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      schoolclass_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
+
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

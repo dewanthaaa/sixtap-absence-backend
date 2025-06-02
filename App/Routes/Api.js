@@ -6,7 +6,6 @@ import CardManagementController from "../Controllers/cardManagementController.js
 import RecapController from "../Controllers/recapController.js";
 import absenceController from "../Controllers/absenceController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
-import recapController from "../Controllers/recapController.js";
 
 const router = express.Router();
 
@@ -144,6 +143,14 @@ router.get(
   authenticateToken,
   checkRole("admin"),
   RecapController.allAbsenceRecap
+);
+
+//Rekap Absensi : Rekap Absensi Siswa Berdasarkan Kelas
+router.get(
+  "/recap-absence/:id",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  RecapController.classAbsenceRecap
 );
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)

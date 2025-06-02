@@ -59,6 +59,17 @@ User.init(
         notEmpty: true,
       },
     },
+    role_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    schoolclass_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -102,17 +113,6 @@ User.init(
     },
     photo: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
-    role_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    schoolclass_id: {
-      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },

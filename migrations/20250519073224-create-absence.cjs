@@ -33,21 +33,9 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      sum_attendance: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      sum_sick: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      sum_permission: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      sum_alpa: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
+      date: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       absence_status: {
         type: Sequelize.ENUM("hadir", "izin", "sakit", "alpa"),

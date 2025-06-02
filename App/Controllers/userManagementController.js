@@ -269,7 +269,7 @@ class UserManagementController {
   async updateUserProfile(req, res) {
     try {
       const userId = req.user.id; // From authenticateToken middleware
-      // const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
+      const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
 
       // Find the user first
       const user = await User.findByPk(userId);
