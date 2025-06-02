@@ -6,6 +6,7 @@ import CardManagementController from "../Controllers/cardManagementController.js
 import RecapController from "../Controllers/recapController.js";
 import absenceController from "../Controllers/absenceController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
+import recapController from "../Controllers/recapController.js";
 
 const router = express.Router();
 
@@ -103,6 +104,9 @@ router.get(
   absenceController.getStudentAbsenceHistory
 );
 
+//Proses Absensi : Mengambil Data Histori Absensi Yang Dicari Berdasarkan Absence Id
+router.get("/absence/:id", absenceController.getAbsenceHistoryById);
+
 //Proses Absensi : Siswa Login Lihat Status Absensi Hari ini
 router.get(
   "/absence/today",
@@ -111,11 +115,35 @@ router.get(
   absenceController.getStudentAbsenceHistoryToday
 );
 
-//Proses Absensi : Wali Kelas Lihat Histori Absensi Hari ini Berdasarkan Kelas Id
+//Proses Absensi : Wali Kelas Lihat Semua Histori Absensi Hari ini Berdasarkan Kelas Id
 router.get(
   "/absence/by-class",
   authenticateToken,
   absenceController.getAbsenceHistoryByClass
+);
+
+//Proses Absensi : Wali Kelas Lihat Histori Absensi Hari ini Berdasarkan Kelas Id
+router.get(
+  "/absence/by-class/today",
+  authenticateToken,
+  checkRole("wali kelas"),
+  absenceController.getTodayAbsenceByHomeroomClass
+);
+
+//Proses Absensi : Wali Kelas Edit Histori Absensi Harian
+router.put(
+  "/edit-absence/:id",
+  authenticateToken,
+  checkRole("wali kelas"),
+  absenceController.editTodayAbsenceStatus
+);
+
+//Rekap Absensi : Semua Rekap Absensi Siswa
+router.get(
+  "/recap-absence",
+  authenticateToken,
+  checkRole("admin"),
+  RecapController.allAbsenceRecap
 );
 
 //Rekap Absensi (Masih Salah, Belum Dicoba)

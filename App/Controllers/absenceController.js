@@ -406,6 +406,7 @@ class AbsenceController {
     }
   }
 
+  //SUDAH DICOBA => AMAN TAPI PERLU DICEK KERAPIHAN KODENYA
   async getTodayAbsenceByHomeroomClass(req, res) {
     try {
       const userId = req.user.id; // Wali kelas dari token
@@ -471,10 +472,11 @@ class AbsenceController {
     }
   }
 
+  //BELUM DICEK DAN DICOBA
   async editTodayAbsenceStatus(req, res) {
     try {
       const userId = req.user.id; // wali kelas
-      const { absence_id } = req.params;
+      const { id } = req.params;
       const { status, info } = req.body;
 
       // Validasi wali kelas
@@ -486,12 +488,12 @@ class AbsenceController {
         });
       }
 
-      const absence = await Absence.findByPk(absence_id, {
+      const absence = await Absence.findByPk(id, {
         include: [
           {
             model: User,
             as: "user",
-            attributes: ["id", "schoolclass_id"],
+            attributes: ["id", "name", "nis", "schoolclass_id"],
           },
         ],
       });
@@ -535,6 +537,42 @@ class AbsenceController {
     } catch (error) {
       console.error("Error editTodayAbsenceStatus:", error);
       return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan server.",
+        error: error.message,
+      });
+    }
+  }
+
+  async getAbsenceHistoryById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const absence = await Absence.findOne({
+        where: { id: id },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["name", "nis"],
+          },
+        ],
+      });
+
+      if (!absence) {
+        return res
+          .status(404)
+          .json({ message: "Histori Absensi Tidak Ditemukan" });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Berhasil Melihat Histori Absensi!.",
+        data: absence,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
         success: false,
         message: "Terjadi kesalahan server.",
         error: error.message,

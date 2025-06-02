@@ -5,38 +5,59 @@ import Role from "../Models/role.js";
 import SchoolClass from "../Models/schoolclass.js";
 
 class RecapController {
-  async recapAbsenceAll(req, res) {
+  async allAbsenceRecap(req, res) {
     try {
-      const { id } = req.params;
+      // Ambil semua user yang punya absensi
+      const usersWithAbsence = await User.findAll({
+        where: {
+          role_id: 2,
+        },
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            attributes: ["absence_status"],
+          },
+        ],
+        order: [["name", "ASC"]], // optional: urutkan berdasarkan nama
+      });
 
-      if (id) {
-        const rekap = await Absence.findAll({
-          attributes: [
-            "sum_attendance",
-            "sum_sick",
-            "sum_permission",
-            "sum_alpa",
-          ],
-          include: [
-            {
-              model: User,
-              as: "users",
-              attributes: ["nama"],
-            },
-          ],
-        });
-        if (!rekap) throw { message: "Rekap absensi tidak ditemukan" };
+      const recapData = usersWithAbsence.map((user, index) => {
+        const absences = user.absences || [];
 
-        return res.status(200).json({
-          status: true,
-          message: "Sukses melihat semua rekap absensi",
-          data: rekap,
-        });
-      }
+        // Hitung jumlah berdasarkan status
+        const jumlahHadir = absences.filter(
+          (abs) => abs.absence_status === "hadir"
+        ).length;
+        const jumlahIzin = absences.filter(
+          (abs) => abs.absence_status === "izin"
+        ).length;
+        const jumlahSakit = absences.filter(
+          (abs) => abs.absence_status === "sakit"
+        ).length;
+        const jumlahAlpa = absences.filter(
+          (abs) => abs.absence_status === "alpa"
+        ).length;
+
+        return {
+          no: index + 1,
+          nama_siswa: user.name, // pastikan nama kolom di model User sesuai
+          jumlah_hadir: jumlahHadir,
+          jumlah_izin: jumlahIzin,
+          jumlah_sakit: jumlahSakit,
+          jumlah_alpa: jumlahAlpa,
+        };
+      });
+
+      return res.status(200).json({
+        message: "Berhasil mendapatkan rekap absensi",
+        data: recapData,
+      });
     } catch (error) {
-      res.status(400).json({
-        status: false,
-        message: error.message,
+      console.error(error);
+      return res.status(500).json({
+        message: "Gagal mendapatkan rekap absensi",
+        error: error.message,
       });
     }
   }
