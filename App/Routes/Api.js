@@ -38,12 +38,7 @@ router.put(
   checkRole("admin"),
   UserManagementController.update
 );
-router.put(
-  "/users/update-profile",
-  authenticateToken,
-  checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
-  UserManagementController.updateUserProfile
-);
+
 router.delete(
   "/users/:id",
   authenticateToken,
@@ -55,6 +50,28 @@ router.post(
   authenticateToken,
   checkRole("admin"),
   UserManagementController.resetPassword
+);
+
+//User melihat data profilnya saat ini => MASIH RUSAK
+router.get(
+  "/users/profile",
+  authenticateToken,
+  checkRole([
+    "admin",
+    "siswa",
+    "petinggi sekolah",
+    "penjaga kantin",
+    "wali kelas",
+  ]),
+  UserManagementController.currentUserProfile
+);
+
+//User edit profil => MASIH RUSAK, NYANGKUT DI CHECKROLENYA NGGAK BACA ALLOWED ROLES X(
+router.put(
+  "/users/update-profile",
+  authenticateToken,
+  checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
+  UserManagementController.updateUserProfile
 );
 
 //Manajemen Kartu
@@ -103,9 +120,6 @@ router.get(
   absenceController.getStudentAbsenceHistory
 );
 
-//Proses Absensi : Mengambil Data Histori Absensi Yang Dicari Berdasarkan Absence Id
-router.get("/absence/:id", absenceController.getAbsenceHistoryById);
-
 //Proses Absensi : Siswa Login Lihat Status Absensi Hari ini
 router.get(
   "/absence/today",
@@ -129,6 +143,14 @@ router.get(
   absenceController.getTodayAbsenceByHomeroomClass
 );
 
+//Proses Absensi : Mengambil Data Histori Absensi Yang Dicari Berdasarkan Absence Id
+router.get(
+  "/absence/by-id/:id",
+  authenticateToken,
+  checkRole(["admin", "siswa", "wali kelas"]),
+  absenceController.getAbsenceHistoryById
+);
+
 //Proses Absensi : Wali Kelas Edit Histori Absensi Harian
 router.put(
   "/edit-absence/:id",
@@ -147,17 +169,26 @@ router.get(
 
 //Rekap Absensi : Rekap Absensi Siswa Berdasarkan Kelas
 router.get(
-  "/recap-absence/:id",
+  "/recap-absence-class/:id",
   authenticateToken,
   checkRole(["admin", "wali kelas"]),
   RecapController.classAbsenceRecap
 );
 
-//Rekap Absensi (Masih Salah, Belum Dicoba)
-// router.post(
+//Rekap Absensi : Rekap Absensi Siswa Berdasarkan Id User nya
+router.get(
+  "/recap-absence-student/:id",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  RecapController.recapAbsenceDetail
+);
+
+// Rekap Absensi (Masih Salah, Belum Dicoba)
+// router.get(
 //   "/absence",
-//   AuthenticateToken,
+//   authenticateToken,
 //   checkRole(["admin", "wali kelas", "petinggi sekolah"]),
-//   RecapController.recapAbsence
+//   RecapController.recapAbsenceDetail
 // );
+
 export default router;

@@ -1,4 +1,5 @@
 import { Op, fn, col, where } from "sequelize";
+import moment from "moment";
 import Absence from "../Models/absence.js";
 import User from "../Models/user.js";
 import Role from "../Models/role.js";
@@ -6,6 +7,24 @@ import SchoolClass from "../Models/schoolclass.js";
 
 class RecapController {
   async allAbsenceRecap(req, res) {
+    const { range } = req.query;
+
+    const dateFilter = {};
+    const today = new Date();
+
+    if (range === "bulan_ini") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      dateFilter.date = { [Op.between]: [start, end] };
+    } else if (range === "6_bulan") {
+      const sixMonthsAgo = new Date(
+        today.getFullYear(),
+        today.getMonth() - 5,
+        1
+      );
+      dateFilter.date = { [Op.gte]: sixMonthsAgo };
+    }
+
     try {
       // Ambil semua user yang punya absensi
       const usersWithAbsence = await User.findAll({
@@ -16,11 +35,19 @@ class RecapController {
           {
             model: Absence,
             as: "absences",
+            where: Object.keys(dateFilter).length ? dateFilter : undefined,
             attributes: ["absence_status"],
           },
         ],
         order: [["name", "ASC"]], // optional: urutkan berdasarkan nama
       });
+
+      if (!usersWithAbsence.length) {
+        return res.status(404).json({
+          message: "Data rekap absensi tidak ditemukan.",
+          data: [],
+        });
+      }
 
       const recapData = usersWithAbsence.map((user, index) => {
         const absences = user.absences || [];
@@ -64,11 +91,28 @@ class RecapController {
 
   async classAbsenceRecap(req, res) {
     const { id } = req.params;
+    const { range } = req.query;
 
     if (!id) {
       return res.status(400).json({
-        message: "Parameter ID kelas wajib disertakan.",
+        message: "ID kelas wajib disertakan.",
       });
+    }
+
+    const dateFilter = {};
+    const today = new Date();
+
+    if (range === "bulan_ini") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      dateFilter.date = { [Op.between]: [start, end] };
+    } else if (range === "6_bulan") {
+      const sixMonthsAgo = new Date(
+        today.getFullYear(),
+        today.getMonth() - 5,
+        1
+      );
+      dateFilter.date = { [Op.gte]: sixMonthsAgo };
     }
 
     try {
@@ -81,6 +125,7 @@ class RecapController {
           {
             model: Absence,
             as: "absences",
+            where: Object.keys(dateFilter).length ? dateFilter : undefined,
             attributes: ["absence_status"],
           },
         ],
@@ -143,70 +188,92 @@ class RecapController {
   }
 
   async recapAbsenceDetail(req, res) {
-    // Ambil semua user yang memiliki role 'siswa'
-    const students = await User.findAll({
-      include: [
-        {
-          model: Role,
-          as: "role",
-          where: { role_id: "2" }, //bagian ini bisa lebih diotomasi lagi
+    const { id } = req.params;
+    const { filter } = req.query; // opsi: 'bulan-ini' (default), '6-bulan'
+
+    if (!id) {
+      return res.status(400).json({ message: "ID siswa wajib disertakan." });
+    }
+
+    // Tentukan rentang waktu berdasarkan query
+    let startDate;
+    const endDate = new Date(); // hari ini
+
+    if (filter === "6-bulan") {
+      startDate = moment().subtract(6, "months").startOf("month").toDate();
+    } else {
+      // default: bulan ini
+      startDate = moment().startOf("month").toDate();
+    }
+
+    try {
+      const userWithAbsence = await User.findOne({
+        where: {
+          id,
+          role_id: 2, // pastikan hanya siswa
         },
-        {
-          model: SchoolClass,
-          as: "schoolClass",
-        },
-      ],
-    });
-
-    // Ambil data absensi siswa hanya untuk bulan dan tahun tertentu
-    const absences = await Absence.findAll({
-      where: where(fn("MONTH", col("created_at")), month),
-      [Op.and]: [where(fn("YEAR", col("created_at")), year)],
-    });
-
-    // Buat rekap per siswa
-    const rekap = students.map((student) => {
-      const userAbsences = absences.filter((ab) => ab.user_id === student.id);
-
-      const statusCount = {
-        hadir: 0,
-        izin: 0,
-        sakit: 0,
-        alfa: 0,
-      };
-
-      userAbsences.forEach((ab) => {
-        const status = ab.status.toLowerCase();
-        if (statusCount[status] !== undefined) {
-          statusCount[status]++;
-        }
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            where: {
+              date: {
+                [Op.between]: [startDate, endDate],
+              },
+            },
+            required: false, // tetap tampilkan user meskipun tidak ada absensi dalam rentang waktu
+            attributes: ["absence_status", "date"],
+          },
+        ],
       });
 
-      return {
-        id: student.id,
-        user_id: students.user_id,
-        name: student.name,
-        nis: student.nis,
-        class: student.schoolclass?.class_name || "-",
-        total: userAbsences.length,
-        hadir: statusCount.hadir,
-        izin: statusCount.izin,
-        sakit: statusCount.sakit,
-        alfa: statusCount.alfa,
-      };
-    });
+      if (!userWithAbsence) {
+        return res.status(404).json({
+          message:
+            "Siswa tidak ditemukan atau tidak memiliki absensi pada periode tersebut.",
+          data: null,
+        });
+      }
 
-    return res.status(200).json({
-      message: "Rekap absensi siswa berhasil diambil.",
-      data: rekap,
-    });
-  }
-  catch(error) {
-    console.error("Error saat merekap absensi:", error);
-    return res.status(500).json({
-      message: "Terjadi kesalahan saat merekap absensi.",
-      error: error.message,
-    });
+      const absences = userWithAbsence.absences || [];
+
+      const jumlahHadir = absences.filter(
+        (abs) => abs.absence_status === "hadir"
+      ).length;
+      const jumlahIzin = absences.filter(
+        (abs) => abs.absence_status === "izin"
+      ).length;
+      const jumlahSakit = absences.filter(
+        (abs) => abs.absence_status === "sakit"
+      ).length;
+      const jumlahAlpa = absences.filter(
+        (abs) => abs.absence_status === "alpa"
+      ).length;
+
+      const recap = {
+        no: 1,
+        nama_siswa: userWithAbsence.name,
+        jumlah_hadir: jumlahHadir,
+        jumlah_izin: jumlahIzin,
+        jumlah_sakit: jumlahSakit,
+        jumlah_alpa: jumlahAlpa,
+        rentang_waktu: {
+          dari: moment(startDate).format("YYYY-MM-DD"),
+          sampai: moment(endDate).format("YYYY-MM-DD"),
+        },
+      };
+
+      return res.status(200).json({
+        message: "Berhasil mendapatkan rekap absensi siswa.",
+        data: recap,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: "Gagal mendapatkan rekap absensi siswa",
+        error: error.message,
+      });
+    }
   }
 }
 

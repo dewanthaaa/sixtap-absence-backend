@@ -73,6 +73,7 @@ class AbsenceController {
         day: moment().format("dddd"),
         time_in: moment().toDate(),
         time_out: null,
+        date: new Date(),
         info: statusTerlambat ? "Terlambat" : null,
         absence_status: "hadir",
         card_status: "approved",
@@ -129,8 +130,8 @@ class AbsenceController {
       }
 
       todayAbsence.time_out = moment().toDate();
+      todayAbsence.date = new Date();
       await todayAbsence.save();
-      console.log(todayAbsence.time_out);
 
       return res.status(200).json({
         message: "Absensi pulang berhasil",
@@ -154,7 +155,7 @@ class AbsenceController {
             {
               model: Absence,
               as: "absences",
-              attributes: ["day", "time_in", "time_out"],
+              attributes: ["day", "time_in", "time_out", "date"],
               include: [
                 {
                   model: SchoolClass,
@@ -186,8 +187,11 @@ class AbsenceController {
   }
 
   async getStudentAbsenceHistoryToday(req, res) {
+    console.log("Masuk ke getStudentAbsenceHistoryToday");
+
     try {
       const studentId = req.user.id; // Ambil dari token (middleware auth)
+      console.log(studentId);
 
       // Cari data siswa
       const student = await User.findOne({
@@ -228,6 +232,7 @@ class AbsenceController {
             ? {
                 timeIn: attendance.time_in,
                 timeOut: attendance.time_out,
+                date: attendance.date,
                 status: attendance.absence_status,
                 info: attendance.info,
               }
@@ -547,6 +552,12 @@ class AbsenceController {
   async getAbsenceHistoryById(req, res) {
     try {
       const { id } = req.params;
+
+      if (!id) {
+        return res
+          .status(404)
+          .json({ message: "Id Histori Absensi Harus Disertakan" });
+      }
 
       const absence = await Absence.findOne({
         where: { id: id },

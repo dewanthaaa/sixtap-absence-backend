@@ -7,14 +7,6 @@ import Wallet from "../Models/wallet.js";
 import bcrypt from "bcrypt";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
 
-const ROLES = {
-  admin: 1,
-  siswa: 2,
-  petinggi_sekolah: 3,
-  penjaga_kantin: 4,
-  wali_kelas: 5,
-};
-
 class UserManagementController {
   async index(req, res) {
     try {
@@ -266,11 +258,83 @@ class UserManagementController {
     }
   }
 
-  async updateUserProfile(req, res) {
+  async currentUserProfile(req, res) {
     try {
-      const userId = req.user.id; // From authenticateToken middleware
-      const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
+      // Ambil ID user dari payload JWT yang sudah diverifikasi oleh middleware
+      const userId = req.userId;
 
+      // Cari user termasuk relasi ke tabel kelas
+      const user = await User.findOne({
+        where: { id: userId },
+        include: [
+          {
+            model: SchoolClass,
+            as: "schoolclass",
+            attributes: ["class_name"],
+          },
+        ],
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User tidak ditemukan.",
+        });
+      }
+
+      let userProfile = {
+        nama: user.name,
+        email: user.email,
+        phone: user.phone,
+      };
+
+      // Role 2 = siswa
+      if (user.role_id === 2) {
+        userProfile = {
+          ...userProfile,
+          nis: user.nis,
+          photo: user.photo,
+          batch: user.batch,
+          kelas: user.schoolclass?.class_name || "-",
+        };
+      }
+
+      // Role 3 = wali kelas (misalnya)
+      else if (user.role_id === 3) {
+        userProfile = {
+          ...userProfile,
+          nip: user.nip,
+          kelas: user.schoolclass?.class_name || "-",
+        };
+      }
+
+      // Role lainnya (admin, kepala sekolah, dll)
+      else {
+        userProfile = {
+          ...userProfile,
+          nip: user.nip,
+        };
+      }
+
+      return res.status(200).json({
+        message: "Berhasil mengambil data profil user saat ini.",
+        data: userProfile,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: "Terjadi kesalahan saat mengambil profil user.",
+        error: error.message,
+      });
+    }
+  }
+
+  async updateUserProfile(req, res) {
+    console.log("req.user:", req.user);
+
+    const userId = req.user.id; // From authenticateToken middleware
+    const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
+
+    try {
       // Find the user first
       const user = await User.findByPk(userId);
       if (!user) {
