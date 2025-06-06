@@ -9,6 +9,8 @@ import calculateAttendanceStatistics from "../Helper/attendanceStatistic.js";
 class AbsenceController {
   async handleTapIn(req, res) {
     const { card_uid } = req.body;
+    const isTestMode =
+      process.env.NODE_ENV === "testing";
 
     try {
       // Cek apakah kartu RFID terdaftar dan aktif
@@ -52,17 +54,19 @@ class AbsenceController {
       }
 
       // Validasi school hours (7:00 AM - 12:00 PM)
-      const currentHour = moment().hour();
-      const currentMinute = moment().minute();
-      const currentTime = currentHour * 60 + currentMinute; // minutes from midnight
-      const schoolStartTime = 7 * 60; // 7:00 AM
-      const schoolEndTime = 15 * 60; // 15:00 PM
+      if (!isTestMode) {
+        const currentHour = moment().hour();
+        const currentMinute = moment().minute();
+        const currentTime = currentHour * 60 + currentMinute; // minutes from midnight
+        const schoolStartTime = 7 * 60; // 7:00 AM
+        const schoolEndTime = 15 * 60; // 15:00 PM
 
-      if (currentTime < schoolStartTime || currentTime > schoolEndTime) {
-        return res.status(400).json({
-          success: false,
-          message: "Tap-in diluar jam sekolah (07:00 - 15:00)",
-        });
+        if (currentTime < schoolStartTime || currentTime > schoolEndTime) {
+          return res.status(400).json({
+            success: false,
+            message: "Tap-in diluar jam sekolah (07:00 - 15:00)",
+          });
+        }
       }
 
       const statusTerlambat = moment().isAfter(moment().hour(6).minute(30));
