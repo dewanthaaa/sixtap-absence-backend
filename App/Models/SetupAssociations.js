@@ -27,7 +27,7 @@ const setupAssociations = () => {
   });
   User.belongsTo(SchoolClass, {
     foreignKey: "schoolclass_id",
-    as: "schoolClass",
+    as: "schoolclass",
   });
   // SchoolClass -> Absence
   SchoolClass.hasMany(Absence, {

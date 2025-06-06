@@ -54,7 +54,7 @@ router.post(
 
 //User melihat data profilnya saat ini => MASIH RUSAK
 router.get(
-  "/users/profile",
+  "/users-detail/profile",
   authenticateToken,
   checkRole([
     "admin",
@@ -68,7 +68,7 @@ router.get(
 
 //User edit profil => MASIH RUSAK, NYANGKUT DI CHECKROLENYA NGGAK BACA ALLOWED ROLES X(
 router.put(
-  "/users/update-profile",
+  "/users-detail/update-profile",
   authenticateToken,
   checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
   UserManagementController.updateUserProfile

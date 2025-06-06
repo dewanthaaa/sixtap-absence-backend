@@ -5,7 +5,9 @@ import SchoolClass from "../Models/schoolclass.js";
 import RfidCard from "../Models/rfidcard.js";
 import Wallet from "../Models/wallet.js";
 import bcrypt from "bcrypt";
+import Op from "sequelize";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
+import isValidEmail from "../Helper/isValidEmail.js";
 
 class UserManagementController {
   async index(req, res) {
@@ -261,7 +263,7 @@ class UserManagementController {
   async currentUserProfile(req, res) {
     try {
       // Ambil ID user dari payload JWT yang sudah diverifikasi oleh middleware
-      const userId = req.userId;
+      const userId = req.user.id;
 
       // Cari user termasuk relasi ke tabel kelas
       const user = await User.findOne({
@@ -379,7 +381,7 @@ class UserManagementController {
       }
 
       // Validate email format if email is being updated
-      if (updateData.email && !this.isValidEmail(updateData.email)) {
+      if (updateData.email && !isValidEmail(updateData.email)) {
         return res.status(400).json({
           success: false,
           message: "Format email tidak valid",
@@ -439,7 +441,7 @@ class UserManagementController {
 
       // Hash PIN if it's being updated
       if (updateData.pin) {
-        const bcrypt = require("bcrypt");
+        // const bcrypt = require("bcrypt");
         updateData.pin = await bcrypt.hash(updateData.pin, 10);
       }
 
@@ -478,12 +480,6 @@ class UserManagementController {
         message: "Terjadi kesalahan internal server",
       });
     }
-  }
-
-  // Helper method to validate email format
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 }
 
