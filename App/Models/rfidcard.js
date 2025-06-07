@@ -1,24 +1,8 @@
 // models/RfidCard.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
-import User from "./user.js";
-import Wallet from "./wallet.js";
-import Transaction from "./transaction.js";
 
-class RfidCard extends Model {
-  static associate() {
-    RfidCard.hasOne(Wallet, { foreignKey: "rfidcard_id", as: "wallet" });
-    RfidCard.hasMany(Transaction, {
-      foreignKey: "rfidcard_id",
-      as: "transactions",
-    });
-    RfidCard.hasMany(Absence, {
-      foreignKey: "rfidcard_id",
-      as: "absences",
-    });
-    RfidCard.belongsTo(User, { foreignKey: "user_id", as: "user" });
-  }
-}
+class RfidCard extends Model {}
 
 RfidCard.init(
   {

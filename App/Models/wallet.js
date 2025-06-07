@@ -1,18 +1,8 @@
 // models/Wallet.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
-import User from "./user.js";
-import RfidCard from "./rfidcard.js";
 
-class Wallet extends Model {
-  static associate() {
-    Wallet.belongsTo(User, { foreignKey: "user_id", as: "user" });
-    Wallet.belongsTo(RfidCard, {
-      foreignKey: "rfidcard_id",
-      as: "rfidCard",
-    });
-  }
-}
+class Wallet extends Model {}
 
 Wallet.init(
   {
@@ -43,7 +33,7 @@ Wallet.init(
   {
     sequelize,
     modelName: "Wallet",
-     underscored: true,
+    underscored: true,
     timestamps: true, // default true, bisa diatur jika tidak perlu
   }
 );

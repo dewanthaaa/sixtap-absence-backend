@@ -260,7 +260,7 @@ class UserManagementController {
     }
   }
 
-  async currentUserProfile(req, res) {
+  async userProfile(req, res) {
     try {
       // Ambil ID user dari payload JWT yang sudah diverifikasi oleh middleware
       const userId = req.user.id;

@@ -4,7 +4,7 @@ import checkRole from "../Middlewares/checkRole.js";
 import UserManagementController from "../Controllers/userManagementController.js";
 import CardManagementController from "../Controllers/cardManagementController.js";
 import RecapController from "../Controllers/recapController.js";
-import absenceController from "../Controllers/absenceController.js";
+import AbsenceController from "../Controllers/absenceController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
 
 const router = express.Router();
@@ -52,7 +52,6 @@ router.post(
   UserManagementController.resetPassword
 );
 
-//User melihat data profilnya saat ini => MASIH RUSAK
 router.get(
   "/users-detail/profile",
   authenticateToken,
@@ -63,10 +62,9 @@ router.get(
     "penjaga kantin",
     "wali kelas",
   ]),
-  UserManagementController.currentUserProfile
+  UserManagementController.userProfile
 );
 
-//User edit profil => MASIH RUSAK, NYANGKUT DI CHECKROLENYA NGGAK BACA ALLOWED ROLES X(
 router.put(
   "/users-detail/update-profile",
   authenticateToken,
@@ -107,32 +105,34 @@ router.post(
   CardManagementController.renewCard
 );
 
+//Absensi Harian
 //Proses Absensi : Tap masuk
-router.post("/tap-in", absenceController.handleTapIn);
+router.post("/tap-in", AbsenceController.handleTapIn);
 
 //Proses Absensi : Tap pulang
-router.post("/tap-out", absenceController.handleTapOut);
+router.post("/tap-out", AbsenceController.handleTapOut);
 
+//Histori Absensi
 //Proses Absensi : Lihat Status Absensi
 router.get(
   "/status-absen/:id",
   // checkRole(["admin", "petinggi sekolah"]),
-  absenceController.getStudentAbsenceHistory
+  AbsenceController.studentAbsenceHistoryById
 );
 
 //Proses Absensi : Siswa Login Lihat Status Absensi Hari ini
 router.get(
   "/absence/today",
   authenticateToken,
-  checkRole(["admin", "siswa"]),
-  absenceController.getStudentAbsenceHistoryToday
+  checkRole("siswa"),
+  AbsenceController.onLoginStudentAbsenceHistory
 );
 
 //Proses Absensi : Wali Kelas Lihat Semua Histori Absensi Hari ini Berdasarkan Kelas Id
 router.get(
   "/absence/by-class",
   authenticateToken,
-  absenceController.getAbsenceHistoryByClass
+  AbsenceController.studentAbsenceHistoryByClass
 );
 
 //Proses Absensi : Wali Kelas Lihat Histori Absensi Hari ini Berdasarkan Kelas Id
@@ -140,15 +140,7 @@ router.get(
   "/absence/by-class/today",
   authenticateToken,
   checkRole("wali kelas"),
-  absenceController.getTodayAbsenceByHomeroomClass
-);
-
-//Proses Absensi : Mengambil Data Histori Absensi Yang Dicari Berdasarkan Absence Id
-router.get(
-  "/absence/by-id/:id",
-  authenticateToken,
-  checkRole(["admin", "siswa", "wali kelas"]),
-  absenceController.getAbsenceHistoryById
+  AbsenceController.studentAbsenceHistoryByClassToday
 );
 
 //Proses Absensi : Wali Kelas Edit Histori Absensi Harian
@@ -156,7 +148,23 @@ router.put(
   "/edit-absence/:id",
   authenticateToken,
   checkRole("wali kelas"),
-  absenceController.editTodayAbsenceStatus
+  AbsenceController.editStudentAbsenceHistoryToday
+);
+
+//Cek lagi mulai dari sini untuk pengambilan histori absensi
+//Histori Absensi : Mengambil Semua Data Histori Absensi
+router.get(
+  "/absence-history",
+  checkRole(["admin", "petinggi sekolah"]),
+  AbsenceController.allStudentAbsenceHistory
+);
+
+//Proses Absensi : Mengambil Data Histori Absensi Yang Dicari Berdasarkan Absence Id
+router.get(
+  "/absence-history/by-id/:id",
+  authenticateToken,
+  checkRole(["admin", "siswa", "wali kelas"]),
+  AbsenceController.studentAbsenceHistoryByAbsenceId
 );
 
 //Rekap Absensi : Semua Rekap Absensi Siswa

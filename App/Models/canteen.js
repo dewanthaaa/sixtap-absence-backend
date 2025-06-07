@@ -1,22 +1,8 @@
 // models/Canteen.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
-import Transaction from "./transaction.js";
-import User from "./user.js";
 
-class Canteen extends Model {
-  static associate() {
-    Canteen.hasMany(Transaction, {
-      foreignKey: "canteen_id",
-      as: "transactions",
-    });
-
-    Canteen.belongsTo(User, {
-      foreignKey: "opened_by",
-      as: "opener",
-    });
-  }
-}
+class Canteen extends Model {}
 
 Canteen.init(
   {
@@ -64,7 +50,7 @@ Canteen.init(
         notEmpty: true,
       },
     },
-     opened_at: {
+    opened_at: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -76,7 +62,7 @@ Canteen.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
-     note: {
+    note: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

@@ -9,8 +9,7 @@ import calculateAttendanceStatistics from "../Helper/attendanceStatistic.js";
 class AbsenceController {
   async handleTapIn(req, res) {
     const { card_uid } = req.body;
-    const isTestMode =
-      process.env.NODE_ENV === "testing";
+    const isTestMode = process.env.NODE_ENV === "testing";
 
     try {
       // Cek apakah kartu RFID terdaftar dan aktif
@@ -148,7 +147,8 @@ class AbsenceController {
     }
   }
 
-  async getStudentAbsenceHistory(req, res) {
+  // Admin, Petinggi Sekolah
+  async studentAbsenceHistoryById(req, res) {
     const { id } = req.params;
 
     try {
@@ -190,12 +190,10 @@ class AbsenceController {
     }
   }
 
-  async getStudentAbsenceHistoryToday(req, res) {
-    console.log("Masuk ke getStudentAbsenceHistoryToday");
-
+  // Siswa
+  async onLoginStudentAbsenceHistory(req, res) {
     try {
       const studentId = req.user.id; // Ambil dari token (middleware auth)
-      console.log(studentId);
 
       // Cari data siswa
       const student = await User.findOne({
@@ -244,7 +242,7 @@ class AbsenceController {
         },
       });
     } catch (error) {
-      console.error("Get Absence History Error:", error);
+      console.error("Data Histori Absensi Kamu Error:", error);
       return res.status(500).json({
         success: false,
         message: "Terjadi kesalahan di server",
@@ -253,7 +251,7 @@ class AbsenceController {
     }
   }
 
-  async getAbsenceHistoryByClass(req, res) {
+  async studentAbsenceHistoryByClass(req, res) {
     try {
       const userId = req.user.id; // Dari JWT middleware
       const {
@@ -416,7 +414,7 @@ class AbsenceController {
   }
 
   //SUDAH DICOBA => AMAN TAPI PERLU DICEK KERAPIHAN KODENYA
-  async getTodayAbsenceByHomeroomClass(req, res) {
+  async studentAbsenceHistoryByClassToday(req, res) {
     try {
       const userId = req.user.id; // Wali kelas dari token
 
@@ -472,7 +470,7 @@ class AbsenceController {
         })),
       });
     } catch (error) {
-      console.error("Error getTodayAbsenceByHomeroomClass:", error);
+      console.error("Error studentAbsenceHistoryByClassToday:", error);
       return res.status(500).json({
         success: false,
         message: "Terjadi kesalahan server.",
@@ -482,7 +480,7 @@ class AbsenceController {
   }
 
   //BELUM DICEK DAN DICOBA
-  async editTodayAbsenceStatus(req, res) {
+  async editStudentAbsenceHistoryToday(req, res) {
     try {
       const userId = req.user.id; // wali kelas
       const { id } = req.params;
@@ -553,7 +551,53 @@ class AbsenceController {
     }
   }
 
-  async getAbsenceHistoryById(req, res) {
+  //cek mulai dari sini untuk melihat histori absensi
+  async allStudentAbsenceHistory(req, res) {
+    try {
+      const absences = await Absence.findAll({
+        attributes: [
+          "id",
+          "day",
+          "time_in",
+          "time_out",
+          "date",
+          "info",
+          "absence_status",
+          "card_status",
+        ],
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "name", "nis", "batch", "photo"],
+          },
+          {
+            model: SchoolClass,
+            as: "schoolClass",
+            attributes: ["id", "class_name"],
+          },
+        ],
+        order: [
+          ["date", "DESC"],
+          ["time_in", "DESC"],
+        ],
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Berhasil mengambil semua histori absensi",
+        data: absences,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan saat mengambil histori absensi",
+        error: error.message,
+      });
+    }
+  }
+
+  async studentAbsenceHistoryByAbsenceId(req, res) {
     try {
       const { id } = req.params;
 
