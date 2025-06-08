@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 
-export class User extends Model {}
+class User extends Model {}
 
 User.init(
   {

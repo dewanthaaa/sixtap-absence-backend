@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 
-export class Absence extends Model {}
+class Absence extends Model {}
 
 Absence.init(
   {

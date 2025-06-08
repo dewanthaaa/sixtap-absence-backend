@@ -2,7 +2,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
 
-export class SchoolClass extends Model {}
+class SchoolClass extends Model {}
 
 SchoolClass.init(
   {
