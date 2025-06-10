@@ -64,10 +64,13 @@ class RecapController {
           (abs) => abs.absence_status === "alpa"
         ).length;
 
+        console.log(user);
+
         return {
           no: index + 1,
-          name: usersWithAbsence.name,
-          nis: usersWithAbsence.nis,
+          id: user.id,
+          name: user.name,
+          nis: user.nis,
           sum_attendance: jumlahHadir,
           sum_permission: jumlahIzin,
           sum_sick: jumlahSakit,
@@ -252,8 +255,8 @@ class RecapController {
 
       const recap = {
         no: 1,
-        name: userWithAbsence.name,
-        nis: userWithAbsence.nis,
+        name: user.name,
+        nis: user.nis,
         sum_attendance: jumlahHadir,
         sum_permission: jumlahIzin,
         sum_sick: jumlahSakit,
