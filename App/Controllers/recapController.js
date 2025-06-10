@@ -2,8 +2,6 @@ import { Op, fn, col, where } from "sequelize";
 import moment from "moment";
 import Absence from "../Models/absence.js";
 import User from "../Models/user.js";
-import Role from "../Models/role.js";
-import SchoolClass from "../Models/schoolclass.js";
 
 class RecapController {
   async allAbsenceRecap(req, res) {
@@ -68,7 +66,8 @@ class RecapController {
 
         return {
           no: index + 1,
-          nama_siswa: user.name, // pastikan nama kolom di model User sesuai
+          nama_siswa: user.name,
+          nis: user.nis,
           jumlah_hadir: jumlahHadir,
           jumlah_izin: jumlahIzin,
           jumlah_sakit: jumlahSakit,
@@ -159,6 +158,7 @@ class RecapController {
         return {
           no: index + 1,
           nama_siswa: user.name,
+          nis: user.nis,
           jumlah_hadir: jumlahHadir,
           jumlah_izin: jumlahIzin,
           jumlah_sakit: jumlahSakit,
@@ -253,6 +253,7 @@ class RecapController {
       const recap = {
         no: 1,
         nama_siswa: userWithAbsence.name,
+        nis: user.nis,
         jumlah_hadir: jumlahHadir,
         jumlah_izin: jumlahIzin,
         jumlah_sakit: jumlahSakit,
