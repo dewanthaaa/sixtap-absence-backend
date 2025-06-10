@@ -66,7 +66,6 @@ class RecapController {
 
         return {
           no: index + 1,
-          id: user.id,
           name: usersWithAbsence.name,
           nis: usersWithAbsence.nis,
           sum_attendance: jumlahHadir,
@@ -254,7 +253,7 @@ class RecapController {
       const recap = {
         no: 1,
         name: userWithAbsence.name,
-        nis: user.nis,
+        nis: userWithAbsence.nis,
         sum_attendance: jumlahHadir,
         sum_permission: jumlahIzin,
         sum_sick: jumlahSakit,
