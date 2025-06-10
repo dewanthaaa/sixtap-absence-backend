@@ -80,9 +80,18 @@ class AbsenceController {
         card_status: "approved",
       });
 
+      const absenceWithUser = await Absence.findOne({
+        where: { id: absence.id },
+        include: {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "nis", "batch", "photo", "schoolclass_id"],
+        },
+      });
+
       return res.status(200).json({
         message: "Absensi masuk berhasil",
-        data: absence,
+        data: absenceWithUser,
       });
     } catch (error) {
       return res
