@@ -7,6 +7,7 @@ import AbsenceController from "../Controllers/absenceController.js";
 import AbsenceHistoryController from "../Controllers/absenceHistoryController.js";
 import RecapController from "../Controllers/recapController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
+import ClassController from "../Controllers/classController.js";
 
 const router = express.Router();
 
@@ -69,7 +70,13 @@ router.get(
 router.put(
   "/users-detail/update-profile",
   authenticateToken,
-  checkRole(["siswa", "petinggi sekolah", "penjaga kantin", "wali kelas"]),
+  checkRole([
+    "admin",
+    "siswa",
+    "petinggi sekolah",
+    "penjaga kantin",
+    "wali kelas",
+  ]),
   UserManagementController.updateUserProfile
 );
 
@@ -104,6 +111,14 @@ router.post(
   authenticateToken,
   checkRole("admin"),
   CardManagementController.renewCard
+);
+
+//Class Management
+router.get(
+  "/classes",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  ClassController.allClass
 );
 
 //Proses Absensi
@@ -145,7 +160,7 @@ router.get(
 router.get(
   "/absence-history/by-class",
   authenticateToken,
-  checkRole(["admin", "wali kelas"]),
+  checkRole("wali kelas"),
   AbsenceHistoryController.byClassId
 );
 
@@ -153,7 +168,7 @@ router.get(
 router.get(
   "/absence-history/by-class/today",
   authenticateToken,
-  checkRole(["admin", "wali kelas"]),
+  checkRole("wali kelas"),
   AbsenceHistoryController.byClassIdTodayOnly
 );
 

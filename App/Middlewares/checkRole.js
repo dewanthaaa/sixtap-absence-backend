@@ -1,7 +1,6 @@
 const checkRole = (allowedRoles = []) => {
   return (req, res, next) => {
     const userRole = req.user?.role_name?.toLowerCase();
-    console.log(userRole);
 
     if (!userRole) {
       return res

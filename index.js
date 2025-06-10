@@ -3,6 +3,7 @@ import router from "./App/Routes/Api.js";
 import dotenv from "dotenv";
 import { connection } from "./App/Config/Database.js";
 import setupAssociations from "./App/Models/SetupAssociations.js";
+import cors from "cors";
 
 dotenv.config();
 const PORT = process.env.PORT;

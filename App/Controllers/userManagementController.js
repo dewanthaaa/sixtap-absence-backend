@@ -271,7 +271,7 @@ class UserManagementController {
         include: [
           {
             model: SchoolClass,
-            as: "schoolclass",
+            as: "schoolClass",
             attributes: ["class_name"],
           },
         ],
@@ -284,7 +284,7 @@ class UserManagementController {
       }
 
       let userProfile = {
-        nama: user.name,
+        name: user.name,
         email: user.email,
         phone: user.phone,
       };

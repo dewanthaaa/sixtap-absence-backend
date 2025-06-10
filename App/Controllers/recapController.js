@@ -66,12 +66,13 @@ class RecapController {
 
         return {
           no: index + 1,
-          nama_siswa: user.name,
-          nis: user.nis,
-          jumlah_hadir: jumlahHadir,
-          jumlah_izin: jumlahIzin,
-          jumlah_sakit: jumlahSakit,
-          jumlah_alpa: jumlahAlpa,
+          id: user.id,
+          name: usersWithAbsence.name,
+          nis: usersWithAbsence.nis,
+          sum_attendance: jumlahHadir,
+          sum_permission: jumlahIzin,
+          sum_sick: jumlahSakit,
+          sum_alpa: jumlahAlpa,
         };
       });
 
@@ -157,12 +158,12 @@ class RecapController {
 
         return {
           no: index + 1,
-          nama_siswa: user.name,
+          name: user.name,
           nis: user.nis,
-          jumlah_hadir: jumlahHadir,
-          jumlah_izin: jumlahIzin,
-          jumlah_sakit: jumlahSakit,
-          jumlah_alpa: jumlahAlpa,
+          sum_attendance: jumlahHadir,
+          sum_permission: jumlahIzin,
+          sum_sick: jumlahSakit,
+          sum_alpa: jumlahAlpa,
         };
       });
 
@@ -252,13 +253,13 @@ class RecapController {
 
       const recap = {
         no: 1,
-        nama_siswa: userWithAbsence.name,
+        name: userWithAbsence.name,
         nis: user.nis,
-        jumlah_hadir: jumlahHadir,
-        jumlah_izin: jumlahIzin,
-        jumlah_sakit: jumlahSakit,
-        jumlah_alpa: jumlahAlpa,
-        rentang_waktu: {
+        sum_attendance: jumlahHadir,
+        sum_permission: jumlahIzin,
+        sum_sick: jumlahSakit,
+        sum_alpa: jumlahAlpa,
+        time_range: {
           dari: moment(startDate).format("YYYY-MM-DD"),
           sampai: moment(endDate).format("YYYY-MM-DD"),
         },
