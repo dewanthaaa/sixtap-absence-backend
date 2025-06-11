@@ -151,7 +151,7 @@ router.get(
 router.get(
   "/absence-history/by-student/:id",
   authenticateToken,
-  checkRole(["admin", "petinggi sekolah"]),
+  checkRole("siswa"),
   AbsenceHistoryController.byStudentId
 );
 

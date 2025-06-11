@@ -276,6 +276,7 @@ class UserManagementController {
           },
         ],
       });
+      console.log(user);
 
       if (!user) {
         return res.status(404).json({
@@ -296,16 +297,26 @@ class UserManagementController {
           nis: user.nis,
           photo: user.photo,
           batch: user.batch,
-          kelas: user.schoolclass?.class_name || "-",
+          class: [
+            {
+              class_id: user.schoolclass_id || "-",
+              class_name: user.schoolClass?.class_name || "-",
+            },
+          ],
         };
       }
 
-      // Role 3 = wali kelas (misalnya)
-      else if (user.role_id === 3) {
+      // Role 5 = wali kelas (misalnya)
+      else if (user.role_id === 5) {
         userProfile = {
           ...userProfile,
           nip: user.nip,
-          kelas: user.schoolclass?.class_name || "-",
+          class: [
+            {
+              class_id: user.schoolclass_id || "-",
+              class_name: user.schoolClass?.class_name || "-",
+            },
+          ],
         };
       }
 
@@ -331,8 +342,6 @@ class UserManagementController {
   }
 
   async updateUserProfile(req, res) {
-    console.log("req.user:", req.user);
-
     const userId = req.user.id; // From authenticateToken middleware
     const userRoleName = req.user.role_name?.toLowerCase(); // From authenticateToken middleware
 
