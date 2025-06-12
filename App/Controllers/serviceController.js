@@ -1,7 +1,7 @@
 // controllers/absenceHistoryExportController.js
-import Absence from "../Models/absence";
-import User from "../Models/user";
-import SchoolClass from "../Models/schoolclass";
+import Absence from "../Models/absence.js";
+import User from "../Models/user.js";
+import SchoolClass from "../Models/schoolclass.js";
 import generateExcel from "../Services/ExcelService.js";
 
 // Column map agar nama kolom Excel bisa dirapikan dan diurutkan

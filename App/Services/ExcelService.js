@@ -50,13 +50,7 @@
 // Versi Baru
 import ExcelJS from "exceljs";
 
-export const generateExcel = async ({
-  data,
-  columns,
-  sheetName,
-  fileName,
-  res,
-}) => {
+const generateExcel = async ({ data, columns, sheetName, fileName, res }) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName || "Sheet 1");
 
@@ -76,3 +70,5 @@ export const generateExcel = async ({
   await workbook.xlsx.write(res);
   res.end();
 };
+
+export default generateExcel;
