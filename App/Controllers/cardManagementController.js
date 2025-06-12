@@ -241,6 +241,18 @@ class CardManagementController {
         return res.status(404).json({ message: "Pengguna tidak ditemukan." });
       }
 
+      const existingCard = await RfidCard.findOne({
+        where: { card_uid },
+        transaction: t,
+      });
+
+      if (existingCard) {
+        await t.rollback();
+        return res.status(409).json({
+          message: "UID kartu sudah digunakan. Gunakan kartu lain.",
+        });
+      }
+
       const oldCard = await RfidCard.findOne(
         {
           where: { user_id: user.id, is_active: true },
