@@ -29,9 +29,15 @@ class CardManagementController {
       if (!user) {
         return res.status(404).json({ message: "Pengguna tidak ditemukan." });
       }
+
+      const latestWallet = await Wallet.findOne({
+        where: { user_id: user.id },
+        order: [["created_at", "ASC"]],
+      });
+
       return res.json({
         message: "Data pengguna ditemukan.",
-        data: user,
+        data: { ...user.toJSON(), wallet: latestWallet },
       });
     } catch (error) {
       return res.status(500).json({

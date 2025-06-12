@@ -8,6 +8,7 @@ import AbsenceHistoryController from "../Controllers/absenceHistoryController.js
 import RecapController from "../Controllers/recapController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
 import ClassController from "../Controllers/classController.js";
+import ServiceController from "../Controllers/serviceController.js";
 
 const router = express.Router();
 
@@ -212,12 +213,30 @@ router.get(
   RecapController.recapAbsenceDetail
 );
 
-// Rekap Absensi (Masih Salah, Belum Dicoba)
-// router.get(
-//   "/absence",
-//   authenticateToken,
-//   checkRole(["admin", "wali kelas", "petinggi sekolah"]),
-//   RecapController.recapAbsenceDetail
-// );
+//Export To Excel Absence History
+
+//All Absence History
+router.get(
+  "/export/all-absence-history",
+  authenticateToken,
+  checkRole(["admin", "petinggi sekolah"]),
+  ServiceController.exportAllAbsenceHistoryToExcel
+);
+
+//Absence History By Class Id
+router.get(
+  "/export/class-absence-history",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  ServiceController.exportAbsenceHistoryByClassIdToExcel
+);
+
+//Absence History By Class Id Today Only
+router.get(
+  "/export/class-absence-history/today",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  ServiceController.exportAbsenceHistoryByClassIdTodayOnlyToExcel
+);
 
 export default router;

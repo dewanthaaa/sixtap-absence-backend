@@ -31,7 +31,6 @@ class AbsenceController {
       }
 
       const user = rfidCard.user;
-      console.log(user);
 
       // Cari record absence hari ini berdasarkan rfid_card_id (ini coba dibuat variabel hari ini-nya)
       const todayAbsence = await Absence.findOne({
@@ -56,7 +55,7 @@ class AbsenceController {
         const currentMinute = moment().minute();
         const currentTime = currentHour * 60 + currentMinute; // minutes from midnight
         const schoolStartTime = 7 * 60; // 7:00 AM
-        const schoolEndTime = 15 * 60; // 15:00 PM
+        const schoolEndTime = 24 * 60; // 15:00 PM
 
         if (currentTime < schoolStartTime || currentTime > schoolEndTime) {
           return res.status(400).json({
