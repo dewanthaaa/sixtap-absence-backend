@@ -3,19 +3,8 @@ import Absence from "../Models/absence.js";
 import User from "../Models/user.js";
 import SchoolClass from "../Models/schoolclass.js";
 import generateExcel from "../Services/ExcelService.js";
-
-// Column map agar nama kolom Excel bisa dirapikan dan diurutkan
-// const absenceColumnMap = {
-//   absence_id: "ID Absen",
-//   student_id: "ID Siswa",
-//   name: "Nama",
-//   nis: "NIS",
-//   photo: "Foto",
-//   time_in: "Waktu Masuk",
-//   time_out: "Waktu Keluar",
-//   status: "Status",
-//   info: "Keterangan",
-// };
+import { Op } from "sequelize";
+import moment from "moment";
 
 class ServiceController {
   async exportAllAbsenceHistoryToExcel(req, res) {
@@ -52,8 +41,8 @@ class ServiceController {
       const formattedData = absences.map((abs) => ({
         date: abs.date,
         day: abs.day,
-        time_in: abs.time_in,
-        time_out: abs.time_out,
+        time_in: abs.time_in ? moment(abs.time_in).format("HH:mm:ss") : "",
+        time_out: abs.time_out ? moment(abs.time_out).format("HH:mm:ss") : "",
         absence_status: abs.absence_status,
         info: abs.info,
         card_status: abs.card_status,
@@ -82,6 +71,8 @@ class ServiceController {
         fileName: "histori-absensi.xlsx",
         res,
       });
+
+      console.log(formattedData);
     } catch (error) {
       console.error("Export error:", error);
       res.status(500).json({
@@ -153,8 +144,8 @@ class ServiceController {
       // ✅ Siapkan data untuk Excel
       const formattedData = absences.map((abs) => ({
         date: abs.date,
-        time_in: abs.time_in,
-        time_out: abs.time_out,
+        time_in: abs.time_in ? moment(abs.time_in).format("HH:mm:ss") : "",
+        time_out: abs.time_out ? moment(abs.time_out).format("HH:mm:ss") : "",
         name: abs.user?.name,
         nis: abs.user?.nis,
         status: abs.absence_status,
@@ -220,8 +211,8 @@ class ServiceController {
       });
 
       const formattedData = absences.map((abs) => ({
-        time_in: abs.time_in,
-        time_out: abs.time_out,
+        time_in: abs.time_in ? moment(abs.time_in).format("HH:mm:ss") : "",
+        time_out: abs.time_out ? moment(abs.time_out).format("HH:mm:ss") : "",
         name: abs.user?.name,
         nis: abs.user?.nis,
         status: abs.absence_status,
@@ -249,6 +240,345 @@ class ServiceController {
       res.status(500).json({
         success: false,
         message: "Gagal export Excel",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportAllAbsenceRecapToExcel(req, res) {
+    try {
+      const userId = req.user.id;
+
+      // Validasi admin
+      const user = await User.findByPk(userId);
+      if (!user || user.role_id !== 1) {
+        return res.status(403).json({
+          success: false,
+          message: "Akses ditolak. Hanya admin yang dapat mengakses fitur ini.",
+        });
+      }
+
+      const { range } = req.query;
+      const dateFilter = {};
+      const today = new Date();
+
+      if (range === "bulan_ini") {
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        dateFilter.date = { [Op.between]: [start, end] };
+      } else if (range === "6_bulan") {
+        const sixMonthsAgo = new Date(
+          today.getFullYear(),
+          today.getMonth() - 5,
+          1
+        );
+        dateFilter.date = { [Op.gte]: sixMonthsAgo };
+      }
+
+      const usersWithAbsence = await User.findAll({
+        where: { role_id: 2 },
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            where: Object.keys(dateFilter).length ? dateFilter : undefined,
+            attributes: ["absence_status"],
+          },
+        ],
+        order: [["name", "ASC"]],
+      });
+
+      if (!usersWithAbsence.length) {
+        return res.status(404).json({
+          success: false,
+          message: "Data rekap absensi tidak ditemukan.",
+        });
+      }
+
+      const recapData = usersWithAbsence.map((user, index) => {
+        const absences = user.absences || [];
+        return {
+          no: index + 1,
+          name: user.name,
+          nis: user.nis,
+          sum_attendance: absences.filter((a) => a.absence_status === "hadir")
+            .length,
+          sum_permission: absences.filter((a) => a.absence_status === "izin")
+            .length,
+          sum_sick: absences.filter((a) => a.absence_status === "sakit").length,
+          sum_alpa: absences.filter((a) => a.absence_status === "alpa").length,
+        };
+      });
+
+      // Definisikan struktur kolom Excel
+      const columns = [
+        { header: "No", key: "no", width: 5 },
+        { header: "Nama", key: "name", width: 20 },
+        { header: "NIS", key: "nis", width: 15 },
+        { header: "Hadir", key: "sum_attendance", width: 10 },
+        { header: "Izin", key: "sum_permission", width: 10 },
+        { header: "Sakit", key: "sum_sick", width: 10 },
+        { header: "Alpa", key: "sum_alpa", width: 10 },
+      ];
+
+      const filenameSuffix =
+        range === "bulan_ini"
+          ? "bulan-ini"
+          : range === "6_bulan"
+          ? "6-bulan-terakhir"
+          : "semua";
+
+      await generateExcel({
+        data: recapData,
+        columns,
+        sheetName: `Rekap Absensi`,
+        fileName: `rekap-absensi-${filenameSuffix}.xlsx`,
+        res,
+      });
+    } catch (error) {
+      console.error("Export Recap Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Gagal melakukan export rekap absensi",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportClassAbsenceRecapToExcel(req, res) {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      const { range } = req.query;
+
+      // Validasi ID kelas
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "ID kelas wajib disertakan.",
+        });
+      }
+
+      // Validasi role: hanya admin dan wali kelas
+      const user = await User.findByPk(userId);
+      if (!user || ![1, 3].includes(user.role_id)) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Akses ditolak. Hanya admin dan wali kelas yang dapat mengakses fitur ini.",
+        });
+      }
+
+      const dateFilter = {};
+      const today = new Date();
+
+      if (range === "bulan_ini") {
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        dateFilter.date = { [Op.between]: [start, end] };
+      } else if (range === "6_bulan") {
+        const sixMonthsAgo = new Date(
+          today.getFullYear(),
+          today.getMonth() - 5,
+          1
+        );
+        dateFilter.date = { [Op.gte]: sixMonthsAgo };
+      }
+
+      const classWithAbsence = await User.findAll({
+        where: {
+          role_id: 2,
+          schoolclass_id: id,
+        },
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            where: Object.keys(dateFilter).length ? dateFilter : undefined,
+            attributes: ["absence_status"],
+          },
+        ],
+        order: [["name", "ASC"]],
+      });
+
+      if (!classWithAbsence || classWithAbsence.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Tidak ditemukan siswa dengan absensi di kelas tersebut.",
+        });
+      }
+
+      const recapData = classWithAbsence.map((user, index) => {
+        const absences = user.absences || [];
+        return {
+          no: index + 1,
+          name: user.name,
+          nis: user.nis,
+          sum_attendance: absences.filter((a) => a.absence_status === "hadir")
+            .length,
+          sum_permission: absences.filter((a) => a.absence_status === "izin")
+            .length,
+          sum_sick: absences.filter((a) => a.absence_status === "sakit").length,
+          sum_alpa: absences.filter((a) => a.absence_status === "alpa").length,
+        };
+      });
+
+      if (recapData.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Tidak ada data absensi untuk kelas ini.",
+        });
+      }
+
+      // Struktur kolom Excel
+      const columns = [
+        { header: "No", key: "no", width: 5 },
+        { header: "Nama", key: "name", width: 20 },
+        { header: "NIS", key: "nis", width: 15 },
+        { header: "Hadir", key: "sum_attendance", width: 10 },
+        { header: "Izin", key: "sum_permission", width: 10 },
+        { header: "Sakit", key: "sum_sick", width: 10 },
+        { header: "Alpa", key: "sum_alpa", width: 10 },
+      ];
+
+      const filenameSuffix =
+        range === "bulan_ini"
+          ? "bulan-ini"
+          : range === "6_bulan"
+          ? "6-bulan-terakhir"
+          : "semua";
+
+      await generateExcel({
+        data: recapData,
+        columns,
+        sheetName: `Rekap Kelas ${id}`,
+        fileName: `rekap-absensi-kelas-${id}-${filenameSuffix}.xlsx`,
+        res,
+      });
+    } catch (error) {
+      console.error("Export Class Recap Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Gagal melakukan export rekap absensi berdasarkan kelas",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportRecapAbsenceDetailToExcel(req, res) {
+    try {
+      const requesterId = req.user.id;
+      const { id } = req.params;
+      const { filter } = req.query;
+
+      // Validasi id siswa
+      if (!id) {
+        return res.status(400).json({
+          message: "ID siswa wajib disertakan.",
+        });
+      }
+
+      // Validasi role hanya admin dan wali kelas
+      const requester = await User.findByPk(requesterId);
+      if (!requester || ![1, 3].includes(requester.role_id)) {
+        return res.status(403).json({
+          message:
+            "Akses ditolak. Hanya admin dan wali kelas yang dapat mengakses fitur ini.",
+        });
+      }
+
+      // Tentukan rentang waktu
+      let startDate;
+      const endDate = new Date();
+
+      if (filter === "6-bulan") {
+        startDate = moment().subtract(6, "months").startOf("month").toDate();
+      } else {
+        startDate = moment().startOf("month").toDate();
+      }
+
+      // Ambil data user & absensinya
+      const userWithAbsence = await User.findOne({
+        where: {
+          id,
+          role_id: 2,
+        },
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            where: {
+              date: {
+                [Op.between]: [startDate, endDate],
+              },
+            },
+            required: false,
+            attributes: ["absence_status", "date"],
+          },
+        ],
+      });
+
+      if (!userWithAbsence) {
+        return res.status(404).json({
+          message:
+            "Siswa tidak ditemukan atau tidak memiliki absensi pada periode tersebut.",
+        });
+      }
+
+      const absences = userWithAbsence.absences || [];
+
+      const jumlahHadir = absences.filter(
+        (a) => a.absence_status === "hadir"
+      ).length;
+      const jumlahIzin = absences.filter(
+        (a) => a.absence_status === "izin"
+      ).length;
+      const jumlahSakit = absences.filter(
+        (a) => a.absence_status === "sakit"
+      ).length;
+      const jumlahAlpa = absences.filter(
+        (a) => a.absence_status === "alpa"
+      ).length;
+
+      const recap = {
+        no: 1,
+        name: userWithAbsence.name,
+        nis: userWithAbsence.nis,
+        sum_attendance: jumlahHadir,
+        sum_permission: jumlahIzin,
+        sum_sick: jumlahSakit,
+        sum_alpa: jumlahAlpa,
+        time_range: `${moment(startDate).format("YYYY-MM-DD")} s.d. ${moment(
+          endDate
+        ).format("YYYY-MM-DD")}`,
+      };
+
+      const columns = [
+        { header: "No", key: "no", width: 5 },
+        { header: "Nama", key: "name", width: 20 },
+        { header: "NIS", key: "nis", width: 15 },
+        { header: "Hadir", key: "sum_attendance", width: 10 },
+        { header: "Izin", key: "sum_permission", width: 10 },
+        { header: "Sakit", key: "sum_sick", width: 10 },
+        { header: "Alpa", key: "sum_alpa", width: 10 },
+        { header: "Periode", key: "time_range", width: 25 },
+      ];
+
+      const fileName = `rekap-absensi-${userWithAbsence.name
+        .toLowerCase()
+        .replace(/ /g, "-")}-${filter || "bulan-ini"}.xlsx`;
+
+      await generateExcel({
+        data: [recap],
+        columns,
+        sheetName: `Rekap ${userWithAbsence.name}`,
+        fileName,
+        res,
+      });
+    } catch (error) {
+      console.error("Export Rekap Siswa Error:", error);
+      return res.status(500).json({
+        message: "Gagal melakukan export rekap absensi siswa",
         error: error.message,
       });
     }

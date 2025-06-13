@@ -215,28 +215,52 @@ router.get(
 
 //Export To Excel Absence History
 
-//All Absence History
+//Export All Absence History
 router.get(
   "/export/all-absence-history",
-  // authenticateToken,
-  // checkRole(["admin", "petinggi sekolah"]),
+  authenticateToken,
+  checkRole(["admin", "petinggi sekolah"]),
   ServiceController.exportAllAbsenceHistoryToExcel
 );
 
-//Absence History By Class Id
+//Export Absence History By Class Id
 router.get(
   "/export/class-absence-history",
-  // authenticateToken,
-  // checkRole(["admin", "wali kelas"]),
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
   ServiceController.exportAbsenceHistoryByClassIdToExcel
 );
 
-//Absence History By Class Id Today Only
+//Export Absence History By Class Id Today Only
 router.get(
   "/export/class-absence-history/today",
-  // authenticateToken,
-  // checkRole(["admin", "wali kelas"]),
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
   ServiceController.exportAbsenceHistoryByClassIdTodayOnlyToExcel
+);
+
+//Export All Absence Recap
+router.get(
+  "/export/all-absence-recap",
+  authenticateToken,
+  checkRole("admin"),
+  ServiceController.exportAllAbsenceRecapToExcel
+);
+
+//Export Class Absence Recap
+router.get(
+  "/export/class-absence-recap/:id",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  ServiceController.exportClassAbsenceRecapToExcel
+);
+
+//Export Detail Absence Recap
+router.get(
+  "/export/student-absence-recap/:id",
+  authenticateToken,
+  checkRole(["admin", "wali kelas"]),
+  ServiceController.exportRecapAbsenceDetailToExcel
 );
 
 export default router;
