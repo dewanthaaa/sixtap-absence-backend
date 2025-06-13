@@ -274,9 +274,13 @@ class UserManagementController {
             as: "schoolClass",
             attributes: ["class_name"],
           },
+          {
+            model: RfidCard,
+            as: "rfidCard",
+            attributes: ["id", "card_uid", "is_active"],
+          },
         ],
       });
-      console.log(user);
 
       if (!user) {
         return res.status(404).json({
@@ -301,6 +305,13 @@ class UserManagementController {
             {
               class_id: user.schoolclass_id || "-",
               class_name: user.schoolClass?.class_name || "-",
+            },
+          ],
+          rfid_card: [
+            {
+              id: user.rfidCard?.id,
+              card_uid: user.rfidCard?.card_uid,
+              is_active: user.rfidCard?.is_active,
             },
           ],
         };
@@ -450,7 +461,6 @@ class UserManagementController {
 
       // Hash PIN if it's being updated
       if (updateData.pin) {
-        // const bcrypt = require("bcrypt");
         updateData.pin = await bcrypt.hash(updateData.pin, 10);
       }
 
