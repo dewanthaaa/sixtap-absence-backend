@@ -24,7 +24,7 @@ class AbsenceHistoryController {
           {
             model: User,
             as: "user",
-            attributes: ["id", "name", "nis", "batch", "photo"],
+            attributes: ["id", "name", "nis", "batch", "photo_filename"],
           },
           {
             model: SchoolClass,
@@ -96,38 +96,46 @@ class AbsenceHistoryController {
 
   // Admin, Petinggi Sekolah
   async byStudentId(req, res) {
-    const { id } = req.params;
+    const studentId = req.user.id; // Ambil ID dari JWT payload
 
     try {
-      if (id) {
-        const student = await User.findByPk(id, {
-          attributes: ["id", "name", "nis", "batch", "photo"],
-          include: [
-            {
-              model: Absence,
-              as: "absences",
-              attributes: ["day", "time_in", "time_out", "date"],
-              include: [
-                {
-                  model: SchoolClass,
-                  as: "schoolClass",
-                  attributes: ["class_name"],
-                },
-              ],
-            },
-          ],
-        });
+      const student = await User.findByPk(studentId, {
+        attributes: ["id", "name", "nis", "batch", "photo_filename"],
+        include: [
+          {
+            model: Absence,
+            as: "absences",
+            attributes: [
+              "day",
+              "time_in",
+              "time_out",
+              "date",
+              "absence_status",
+              "info",
+            ],
+            include: [
+              {
+                model: SchoolClass,
+                as: "schoolClass",
+                attributes: ["class_name"],
+              },
+            ],
+          },
+        ],
+        order: [[{ model: Absence, as: "absences" }, "date", "DESC"]],
+      });
 
-        if (!student) {
-          throw { message: "Data kehadiran tidak ditemukan" };
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: "Sukses melihat kehadiran",
-          data: student,
+      if (!student) {
+        return res.status(404).json({
+          message: "Data kehadiran tidak ditemukan",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        message: "Sukses melihat histori kehadiran",
+        data: student,
+      });
     } catch (error) {
       console.error("Get status error:", error);
       return res.status(500).json({
@@ -333,7 +341,7 @@ class AbsenceHistoryController {
             where: {
               schoolclass_id: homeroomTeacher.schoolclass_id,
             },
-            attributes: ["id", "name", "nis", "photo"],
+            attributes: ["id", "name", "nis", "photo_filename"],
           },
         ],
         order: [["time_in", "ASC"]],
@@ -347,7 +355,7 @@ class AbsenceHistoryController {
           student_id: absence.user.id,
           name: absence.user.name,
           nis: absence.user.nis,
-          photo: absence.user.photo,
+          photo: absence.user.photo_filename,
           time_in: absence.time_in,
           time_out: absence.time_out,
           status: absence.absence_status,

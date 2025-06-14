@@ -52,7 +52,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      photo: {
+      photo_filename: {
         type: Sequelize.STRING,
         allowNull: true,
       },

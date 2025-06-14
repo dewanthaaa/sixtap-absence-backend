@@ -9,6 +9,7 @@ import RecapController from "../Controllers/recapController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
 import ClassController from "../Controllers/classController.js";
 import ServiceController from "../Controllers/serviceController.js";
+import upload from "../Middlewares/photoUpload.js";
 
 const router = express.Router();
 
@@ -81,6 +82,13 @@ router.put(
   UserManagementController.updateUserProfile
 );
 
+//Route Upload Foto
+router.post(
+  "/users/:id/upload-photo",
+  upload.single("photo"),
+  UserManagementController.uploadUserPhoto
+);
+
 //Manajemen Kartu
 router.post(
   "/card/check-user",
@@ -150,7 +158,7 @@ router.get(
 
 //Histori Absensi : Lihat Histori Absensi Berdasarkan Id Siswa
 router.get(
-  "/absence-history/by-student/:id",
+  "/absence-history/by-student",
   authenticateToken,
   checkRole("siswa"),
   AbsenceHistoryController.byStudentId

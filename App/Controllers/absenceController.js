@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import RfidCard from "../Models/rfidcard.js";
 import User from "../Models/user.js";
 import Absence from "../Models/absence.js";
+import SchoolClass from "../Models/schoolclass.js";
 
 class AbsenceController {
   async handleTapIn(req, res) {
@@ -20,7 +21,19 @@ class AbsenceController {
         include: {
           model: User,
           as: "user",
-          attributes: ["id", "name", "nis", "batch", "photo", "schoolclass_id"],
+          attributes: [
+            "id",
+            "name",
+            "nis",
+            "batch",
+            "photo_filename",
+            "schoolclass_id",
+          ],
+          include: {
+            model: SchoolClass,
+            as: "schoolClass",
+            attributes: ["class_name"],
+          },
         },
       });
 
@@ -79,18 +92,26 @@ class AbsenceController {
         card_status: "approved",
       });
 
-      const absenceWithUser = await Absence.findOne({
-        where: { id: absence.id },
-        include: {
-          model: User,
-          as: "user",
-          attributes: ["id", "name", "nis", "batch", "photo", "schoolclass_id"],
-        },
-      });
+      // Siapkan URL foto siswa
+      const photoUrl = user.photo_filename
+        ? `${req.protocol}://${req.get("host")}/uploads/photos/${
+            user.photo_filename
+          }`
+        : null;
+
+      const userInfo = {
+        id: user.id,
+        name: user.name,
+        nis: user.nis,
+        batch: user.batch,
+        class_name: user.schoolClass?.class_name || null,
+        photo_url: photoUrl,
+      };
 
       return res.status(200).json({
         message: "Absensi masuk berhasil",
-        data: absenceWithUser,
+        data: absence,
+        user: userInfo,
       });
     } catch (error) {
       return res
@@ -105,9 +126,23 @@ class AbsenceController {
     try {
       const rfidCard = await RfidCard.findOne({
         where: { card_uid, is_active: true },
-        include: [
-          { model: User, as: "user", attributes: ["name", "schoolclass_id"] },
-        ],
+        include: {
+          model: User,
+          as: "user",
+          attributes: [
+            "id",
+            "name",
+            "nis",
+            "batch",
+            "photo_filename",
+            "schoolclass_id",
+          ],
+          include: {
+            model: SchoolClass,
+            as: "schoolClass",
+            attributes: ["class_name"],
+          },
+        },
       });
 
       if (!rfidCard || !rfidCard.user) {
@@ -115,6 +150,8 @@ class AbsenceController {
           .status(404)
           .json({ message: "Kartu tidak valid atau belum terdaftar." });
       }
+
+      const user = rfidCard.user;
 
       const todayAbsence = await Absence.findOne({
         where: {
@@ -142,9 +179,26 @@ class AbsenceController {
       todayAbsence.date = new Date();
       await todayAbsence.save();
 
+      // Siapkan URL foto siswa
+      const photoUrl = user.photo_filename
+        ? `${req.protocol}://${req.get("host")}/uploads/photos/${
+            user.photo_filename
+          }`
+        : null;
+
+      const userInfo = {
+        id: user.id,
+        name: user.name,
+        nis: user.nis,
+        batch: user.batch,
+        class_name: user.schoolClass?.class_name || null,
+        photo_url: photoUrl,
+      };
+
       return res.status(200).json({
         message: "Absensi pulang berhasil",
         data: todayAbsence,
+        user: userInfo,
       });
     } catch (error) {
       return res

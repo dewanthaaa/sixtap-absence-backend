@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import Op from "sequelize";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
 import isValidEmail from "../Helper/isValidEmail.js";
+import path from "path";
 
 class UserManagementController {
   async index(req, res) {
@@ -289,9 +290,11 @@ class UserManagementController {
       }
 
       let userProfile = {
+        id: user.id,
         name: user.name,
         email: user.email,
         phone: user.phone,
+        photo: user.photo_filename,
       };
 
       // Role 2 = siswa
@@ -368,10 +371,32 @@ class UserManagementController {
 
       // Define allowed fields for each role (using role names)
       const allowedFieldsByRole = {
-        "petinggi sekolah": ["nip", "pin", "name", "email", "phone", "photo"],
-        "wali kelas": ["nip", "pin", "name", "email", "phone", "photo"],
+        "petinggi sekolah": [
+          "nip",
+          "pin",
+          "name",
+          "email",
+          "phone",
+          "photo_filename",
+        ],
+        "wali kelas": [
+          "nip",
+          "pin",
+          "name",
+          "email",
+          "phone",
+          "photo_filename",
+        ],
         "penjaga kantin": ["nip", "pin", "name", "email", "phone"],
-        siswa: ["nis", "pin", "name", "email", "phone", "photo", "batch"],
+        siswa: [
+          "nis",
+          "pin",
+          "name",
+          "email",
+          "phone",
+          "photo_filename",
+          "batch",
+        ],
       };
 
       // Check if user role is allowed to update data
@@ -498,6 +523,36 @@ class UserManagementController {
         success: false,
         message: "Terjadi kesalahan internal server",
       });
+    }
+  }
+
+  async uploadUserPhoto(req, res) {
+    const userId = req.params.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "File tidak ditemukan" });
+    }
+
+    try {
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User tidak ditemukan" });
+      }
+
+      // Simpan nama file ke DB
+      user.photo_filename = req.file.filename;
+      await user.save();
+
+      res.status(200).json({
+        message: "Foto berhasil diupload",
+        photo_filename: req.file.filename,
+        photo_url: `/uploads/photos/${req.file.filename}`, // optional
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal upload foto", error: error.message });
     }
   }
 }

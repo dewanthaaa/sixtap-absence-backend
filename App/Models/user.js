@@ -66,7 +66,7 @@ User.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    photo: {
+    photo_filename: {
       type: DataTypes.STRING,
       allowNull: true,
     },

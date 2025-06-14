@@ -4,10 +4,21 @@ import dotenv from "dotenv";
 import { connection } from "./App/Config/Database.js";
 import setupAssociations from "./App/Models/SetupAssociations.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
+
+// Setup untuk __dirname (karena pakai module system)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ======== 💡 Ini bagian penting ========
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Artinya: semua file di dalam folder 'uploads/' bisa diakses via /uploads/...
+// =======================================
 
 // Konfigurasi CORS
 // app.use(

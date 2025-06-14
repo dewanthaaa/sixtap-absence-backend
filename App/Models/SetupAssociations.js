@@ -29,6 +29,7 @@ const setupAssociations = () => {
     foreignKey: "schoolclass_id",
     as: "schoolClass",
   });
+
   // SchoolClass -> Absence
   SchoolClass.hasMany(Absence, {
     foreignKey: "schoolclass_id",
