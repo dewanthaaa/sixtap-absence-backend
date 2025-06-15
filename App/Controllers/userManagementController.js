@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import Op from "sequelize";
 import generateRandomPassword from "../Helper/generateRandomPassword.js";
 import isValidEmail from "../Helper/isValidEmail.js";
+import fs from "fs";
 import path from "path";
 
 class UserManagementController {
@@ -270,6 +271,7 @@ class UserManagementController {
       const user = await User.findOne({
         where: { id: userId },
         include: [
+          { model: Role, as: "role", attributes: ["role_name"] },
           {
             model: SchoolClass,
             as: "schoolClass",
@@ -289,12 +291,20 @@ class UserManagementController {
         });
       }
 
+      // Siapkan URL foto
+      const photoUrl = user.photo_filename
+        ? `${req.protocol}://${req.get("host")}/uploads/photos/${
+            user.photo_filename
+          }`
+        : null;
+
       let userProfile = {
         id: user.id,
+        role: user.role,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        photo: user.photo_filename,
+        photo: photoUrl,
       };
 
       // Role 2 = siswa
@@ -302,8 +312,8 @@ class UserManagementController {
         userProfile = {
           ...userProfile,
           nis: user.nis,
-          photo: user.photo,
           batch: user.batch,
+          pin: user.pin,
           class: [
             {
               class_id: user.schoolclass_id || "-",
@@ -489,6 +499,27 @@ class UserManagementController {
         updateData.pin = await bcrypt.hash(updateData.pin, 10);
       }
 
+      // Handle file upload (foto profil)
+      if (req.file) {
+        const newFilename = req.file.filename;
+
+        // Hapus foto lama jika ada dan bukan default
+        if (user.photo_filename) {
+          const oldPath = path.join("uploads/photos", user.photo_filename);
+          try {
+            fs.unlinkSync(oldPath);
+          } catch (err) {
+            console.warn(
+              "Gagal menghapus foto lama (mungkin tidak ada):",
+              err.message
+            );
+          }
+        }
+
+        // Simpan nama file baru
+        updateData.photo_filename = newFilename;
+      }
+
       // Update the user data
       await user.update(updateData);
 
@@ -526,8 +557,8 @@ class UserManagementController {
     }
   }
 
-  async uploadUserPhoto(req, res) {
-    const userId = req.params.id;
+  async uploadUserPhotoProfile(req, res) {
+    const userId = req.user.id;
 
     if (!req.file) {
       return res.status(400).json({ message: "File tidak ditemukan" });
@@ -553,6 +584,58 @@ class UserManagementController {
       res
         .status(500)
         .json({ message: "Gagal upload foto", error: error.message });
+    }
+  }
+
+  async updateUserPhotoProfile(req, res) {
+    const userId = req.user.id;
+
+    try {
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User tidak ditemukan" });
+      }
+
+      // Cek apakah file ada
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, message: "File foto tidak ditemukan" });
+      }
+
+      // Simpan nama file baru
+      const newPhotoFilename = req.file.filename;
+
+      // Hapus file lama jika ada
+      if (user.photo_filename) {
+        const oldPhotoPath = path.join("uploads/photos", user.photo_filename);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      // Update ke database
+      await user.update({ photo_filename: newPhotoFilename });
+
+      return res.status(200).json({
+        success: true,
+        message: "Foto profil berhasil diperbarui",
+        data: {
+          id: user.id,
+          photo_filename: newPhotoFilename,
+          photo_url: `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/photos/${newPhotoFilename}`,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan saat mengupdate foto profil",
+      });
     }
   }
 }

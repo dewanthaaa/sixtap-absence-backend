@@ -105,6 +105,11 @@ class AuthController {
       const userData = user.toJSON();
       delete userData.password;
 
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      userData.photo_url = userData.photo_filename
+        ? `${baseUrl}/uploads/photos/${userData.photo_filename}`
+        : null;
+
       // Respon sukses
       return res.status(200).json({
         message:

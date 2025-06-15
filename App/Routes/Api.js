@@ -79,14 +79,38 @@ router.put(
     "penjaga kantin",
     "wali kelas",
   ]),
+  upload.single("photo"),
   UserManagementController.updateUserProfile
 );
 
-//Route Upload Foto
+//Upload Profile Photo
 router.post(
-  "/users/:id/upload-photo",
+  "/users-detail/upload-photo-profile",
+  authenticateToken,
+  checkRole([
+    "admin",
+    "siswa",
+    "petinggi sekolah",
+    "penjaga kantin",
+    "wali kelas",
+  ]),
   upload.single("photo"),
-  UserManagementController.uploadUserPhoto
+  UserManagementController.uploadUserPhotoProfile
+);
+
+//Update Profile Photo
+router.put(
+  "/users-detail/update-photo-profile",
+  authenticateToken,
+  checkRole([
+    "admin",
+    "siswa",
+    "petinggi sekolah",
+    "penjaga kantin",
+    "wali kelas",
+  ]),
+  upload.single("photo"),
+  UserManagementController.updateUserPhotoProfile
 );
 
 //Manajemen Kartu

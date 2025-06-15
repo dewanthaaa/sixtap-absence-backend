@@ -64,8 +64,6 @@ class RecapController {
           (abs) => abs.absence_status === "alpa"
         ).length;
 
-        console.log(user);
-
         return {
           no: index + 1,
           id: user.id,
