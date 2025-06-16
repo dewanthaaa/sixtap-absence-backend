@@ -4,6 +4,7 @@ import RfidCard from "../Models/rfidcard.js";
 import User from "../Models/user.js";
 import Absence from "../Models/absence.js";
 import SchoolClass from "../Models/schoolclass.js";
+import { sendAbsenceNotificationEmail } from "../Services/absenceNotificationService.js";
 
 class AbsenceController {
   async handleTapIn(req, res) {
@@ -24,6 +25,7 @@ class AbsenceController {
           attributes: [
             "id",
             "name",
+            "email",
             "nis",
             "batch",
             "photo_filename",
@@ -44,6 +46,7 @@ class AbsenceController {
       }
 
       const user = rfidCard.user;
+      console.log("DEBUG USER:", user);
 
       // Cari record absence hari ini berdasarkan rfid_card_id (ini coba dibuat variabel hari ini-nya)
       const todayAbsence = await Absence.findOne({
@@ -92,6 +95,10 @@ class AbsenceController {
         card_status: "approved",
       });
 
+      await sendAbsenceNotificationEmail(user, absence, "tapin").catch(
+        console.error
+      );
+
       // Siapkan URL foto siswa
       const photoUrl = user.photo_filename
         ? `${req.protocol}://${req.get("host")}/uploads/photos/${
@@ -132,6 +139,7 @@ class AbsenceController {
           attributes: [
             "id",
             "name",
+            "email",
             "nis",
             "batch",
             "photo_filename",
@@ -178,6 +186,8 @@ class AbsenceController {
       todayAbsence.time_out = moment().toDate();
       todayAbsence.date = new Date();
       await todayAbsence.save();
+
+      await sendAbsenceNotificationEmail(user, todayAbsence, "tapout");
 
       // Siapkan URL foto siswa
       const photoUrl = user.photo_filename

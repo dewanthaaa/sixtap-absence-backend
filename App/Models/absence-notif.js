@@ -1,25 +1,28 @@
 // models/absence-notif.js
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../Config/Database.js";
-import User from "./user.js";
-import Absence from "./absence.js";
 
-export class AbsenceNotification extends Model {
-  static associate() {
-    AbsenceNotification.belongsTo(User, {
-      foreignKey: "user_id",
-      as: "user",
-    });
-    AbsenceNotification.belongsTo(Absence, {
-      foreignKey: "absence_id",
-      as: "absence",
-    });
-  }
-}
+export class AbsenceNotification extends Model {}
 
 AbsenceNotification.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
     user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    absence_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -33,15 +36,15 @@ AbsenceNotification.init(
         notEmpty: true,
       },
     },
-    type: {
-      type: DataTypes.ENUM("absensi", "sistem", "pemberitahuan"),
+    notif_type: {
+      type: DataTypes.ENUM("tapin", "tapout"),
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
-    status: {
-      type: DataTypes.ENUM("read", "unread"),
+    notif_status: {
+      type: DataTypes.ENUM("berhasil", "gagal"),
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -49,13 +52,6 @@ AbsenceNotification.init(
     },
     sent_at: {
       type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    absence_id: {
-      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         notEmpty: true,

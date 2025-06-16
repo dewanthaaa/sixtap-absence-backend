@@ -14,24 +14,24 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      absence_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       message: {
         type: Sequelize.TEXT("long"),
         allowNull: false,
       },
-      type: {
-        type: Sequelize.ENUM("absensi", "sistem", "pemberitahuan"),
+      notif_type: {
+        type: Sequelize.ENUM("tapin", "tapout"),
         allowNull: false,
       },
-      status: {
-        type: Sequelize.ENUM("read", "unread"),
+      notif_status: {
+        type: Sequelize.ENUM("berhasil", "gagal"),
         allowNull: false,
       },
       sent_at: {
         type: Sequelize.DATE,
-        allowNull: false,
-      },
-      absence_id: {
-        type: Sequelize.INTEGER,
         allowNull: false,
       },
       created_at: {

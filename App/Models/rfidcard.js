@@ -16,7 +16,7 @@ RfidCard.init(
       },
     },
     user_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         notEmpty: true,

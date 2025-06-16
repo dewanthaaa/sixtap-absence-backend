@@ -59,14 +59,26 @@ class CardManagementController {
     try {
       const card = await RfidCard.findOne({
         where: { card_uid },
-        include: ["user", "wallet"],
+        include: [
+          { model: User, as: "user" },
+          { model: Wallet, as: "wallet" },
+        ],
       });
       if (!card) {
         return res.status(404).json({ message: "Kartu tidak ditemukan." });
       }
+
+      const photoFilename = card.user?.photo_filename || null;
+      const photoUrl = photoFilename
+        ? `${req.protocol}://${req.get("host")}/uploads/photos/${photoFilename}`
+        : null;
+
       return res.json({
         message: "Data kartu ditemukan.",
-        data: card,
+        data: {
+          ...card.toJSON(),
+          photoUrl: photoUrl || null,
+        },
       });
     } catch (error) {
       return res.status(500).json({
