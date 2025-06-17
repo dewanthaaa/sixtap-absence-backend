@@ -361,7 +361,7 @@ class ServiceController {
 
       // Validasi role: hanya admin dan wali kelas
       const user = await User.findByPk(userId);
-      if (!user || ![1, 3].includes(user.role_id)) {
+      if (!user || ![1, 5].includes(user.role_id)) {
         return res.status(403).json({
           success: false,
           message:
@@ -480,7 +480,7 @@ class ServiceController {
 
       // Validasi role hanya admin dan wali kelas
       const requester = await User.findByPk(requesterId);
-      if (!requester || ![1, 3].includes(requester.role_id)) {
+      if (!requester || ![1, 5].includes(requester.role_id)) {
         return res.status(403).json({
           message:
             "Akses ditolak. Hanya admin dan wali kelas yang dapat mengakses fitur ini.",
