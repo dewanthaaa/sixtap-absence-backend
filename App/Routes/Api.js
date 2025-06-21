@@ -8,7 +8,7 @@ import AbsenceHistoryController from "../Controllers/absenceHistoryController.js
 import RecapController from "../Controllers/recapController.js";
 import authenticateToken from "../Middlewares/authenticateToken.js";
 import ClassController from "../Controllers/classController.js";
-import ServiceController from "../Controllers/serviceController.js";
+import ExportController from "../Controllers/exportController.js";
 import upload from "../Middlewares/photoUpload.js";
 
 const router = express.Router();
@@ -47,7 +47,7 @@ router.delete(
   "/users/:id",
   authenticateToken,
   checkRole("admin"),
-  UserManagementController.destroy
+  UserManagementController.delete
 );
 router.post(
   "/users/:id/reset-password",
@@ -189,7 +189,6 @@ router.get(
 );
 
 //Histori Absensi : Wali Kelas Lihat Semua Histori Absensi Berdasarkan Kelas Id
-//Cek korelasinya dengan absenceHelper
 router.get(
   "/absence-history/by-class",
   authenticateToken,
@@ -247,36 +246,12 @@ router.get(
 
 //Export To Excel Absence History
 
-//Export All Absence History
-router.get(
-  "/export/all-absence-history",
-  authenticateToken,
-  checkRole(["admin", "petinggi sekolah"]),
-  ServiceController.exportAllAbsenceHistoryToExcel
-);
-
-//Export Absence History By Class Id
-router.get(
-  "/export/class-absence-history",
-  authenticateToken,
-  checkRole(["admin", "wali kelas"]),
-  ServiceController.exportAbsenceHistoryByClassIdToExcel
-);
-
-//Export Absence History By Class Id Today Only
-router.get(
-  "/export/class-absence-history/today",
-  authenticateToken,
-  checkRole(["admin", "wali kelas"]),
-  ServiceController.exportAbsenceHistoryByClassIdTodayOnlyToExcel
-);
-
 //Export All Absence Recap
 router.get(
   "/export/all-absence-recap",
   authenticateToken,
   checkRole("admin"),
-  ServiceController.exportAllAbsenceRecapToExcel
+  ExportController.exportAllAbsenceRecapToExcel
 );
 
 //Export Class Absence Recap
@@ -284,15 +259,7 @@ router.get(
   "/export/class-absence-recap/:id",
   authenticateToken,
   checkRole(["admin", "wali kelas"]),
-  ServiceController.exportClassAbsenceRecapToExcel
-);
-
-//Export Detail Absence Recap
-router.get(
-  "/export/student-absence-recap/:id",
-  authenticateToken,
-  checkRole(["admin", "wali kelas"]),
-  ServiceController.exportRecapAbsenceDetailToExcel
+  ExportController.exportClassAbsenceRecapToExcel
 );
 
 export default router;
